@@ -7,11 +7,13 @@
 
 ### Instructions
 - Copy `custom_components/yerushamayim` folder to your `custom_components` Home Assistant foler
+- Restart Home Assistant
 - Add to your configuration yaml:
     ```
     sensor:
     - platform: yerushamayim
     ```
+- Restart Home Assistant
 - Copy `www/yerushamayim-card.js` to your `www` Home Assistant foler
 - Edit your Lovelace dashboard and add to resources `/local/yerushamayim-card.js?v=79` as JavaScript Module
 - Add manual card to your dashboard:
