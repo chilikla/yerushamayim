@@ -2,7 +2,7 @@
 ## Unofficial Yerushamayim Home Assistant integration and Lovelace card
 
 ### :hammer_and_wrench: Integration version: 0.0.10
-### :camping: 0.0.79
+### :camping: Card version: 0.0.79
 <br/>
 
 ### Instructions
@@ -15,7 +15,7 @@
     ```
 - Restart Home Assistant
 - Copy `www/yerushamayim-card.js` to your `www` Home Assistant foler
-- Edit your Lovelace dashboard and add to resources `/local/yerushamayim-card.js?v=79` as JavaScript Module
+- Edit your Lovelace dashboard and add to resources `/local/yerushamayim-card.js?v=0.0.79` as JavaScript Module
 - Add manual card to your dashboard:
     ```
     type: custom:yerushamayim-card
