@@ -35,7 +35,9 @@ class YerushamayimCard extends LitElement {
         ${ (stateStr !== 'unavailable' && state.attributes.current_temp !== null)
             ? html`
               <div id="left">
-                <img class="icon" src="${state.attributes.status_icon}" title="${state.attributes.status_icon_info}">
+                <div>
+                  <img class="icon" src="${state.attributes.status_icon}" title="${state.attributes.status_icon_info}">
+                </div>
                 <div id="icon-info" dir="rtl">
                   <bdi>${state.attributes.status_title}</bdi>
                 </div>
@@ -94,7 +96,7 @@ class YerushamayimCard extends LitElement {
     this.config = config;
   }
 
-  getCardSize() { // TODO
+  getCardSize() {
     return 3;
   }
 
@@ -121,8 +123,8 @@ class YerushamayimCard extends LitElement {
         flex-basis: 45%;
       }
       img.icon {
-        width: 100px;
-        margin-bottom: 5px;
+        height: 60px;
+        padding-bottom: 5px;
       }
       #icon-info {
         text-align: left;
