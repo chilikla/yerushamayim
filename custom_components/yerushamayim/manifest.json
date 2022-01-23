@@ -1,0 +1,11 @@
+{
+  "domain": "yerushamayim",
+  "name": "Yerushamayim",
+  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/hello_world/",
+  "dependencies": [],
+  "codeowners": ["chilikla"],
+  "requirements": ["beautifulsoup4==4.10.0"],
+  "after_dependencies": ["rest"],
+  "iot_class": "local_polling",
+  "version": "0.0.9"
+}
