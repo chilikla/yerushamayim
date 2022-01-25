@@ -23,7 +23,6 @@ class YerushamayimCard extends LitElement {
   }
 
   render() {    
-    console.log(this.hass);
     const entityId = this.config.entity;
     const state = this.hass.states[entityId];
     const stateStr = state ? state.state : 'unavailable';
@@ -35,11 +34,17 @@ class YerushamayimCard extends LitElement {
         ${ (stateStr !== 'unavailable' && state.attributes.current_temp !== null)
             ? html`
               <div id="left">
-                <div>
-                  <img class="icon" src="${state.attributes.status_icon}" title="${state.attributes.status_icon_info}">
-                </div>
-                <div id="icon-info" dir="rtl">
-                  <bdi>${state.attributes.status_title}</bdi>
+                <div id="status-container">
+                  ${ (state.attributes.status_icon)
+                    ? html`<div>
+                      <img class="icon" src="${state.attributes.status_icon}" title="${state.attributes.status_icon_info}">
+                    </div>
+                    <div id="icon-info" dir="rtl">
+                      <bdi>${state.attributes.status_title}</bdi>
+                    </div>
+                    `
+                    : html``
+                  }
                 </div>
                 <div>
                   <div class="forecast-icon">
@@ -121,6 +126,9 @@ class YerushamayimCard extends LitElement {
         display: flex;
         flex-direction: column;
         flex-basis: 45%;
+      }
+      #status-container {
+        min-height: 105px;
       }
       img.icon {
         height: 60px;
