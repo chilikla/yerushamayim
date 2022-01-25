@@ -49,9 +49,9 @@ async def async_setup_platform(
   discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
   site = RestData(hass, "GET", URL, None, None, None, None, False)
-  await site.async_update()
+  await site.async_update(False)
   api = RestData(hass, "GET", API, None, None, None, None, False)
-  await api.async_update()
+  await api.async_update(False)
 
   if site.data is None:
     raise PlatformNotReady
@@ -103,17 +103,18 @@ class Yerushamayim(SensorEntity):
       it_feels_css_selector = "#itfeels span.value"
     elif len(it_feels_anchor_children) == 0:
       it_feels_css_selector = None
-    if it_feels_css_selector:
+    if it_feels_css_selector and len(it_feels_css_selector) > 0:
       feels_like_temp = latest_now.select(it_feels_css_selector)[0].get_text().replace("°", "")
       data["feels_like_temp"] = feels_like_temp
       if (len(latest_now.select("#itfeels #itfeels_thsw")) > 0):
         feels_like_temp_sun = latest_now.select("#itfeels #itfeels_thsw span.value")[0].get_text()
         data["feels_like_temp_sun"] = feels_like_temp_sun
 
-    coldmeter = json.loads(self.api.data)
-    data["status_title"] = coldmeter["coldmeter"]["current_feeling"]
-    data["status_icon"] = URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"]
-    data["status_icon_info"] = coldmeter["coldmeter"]["clothtitle"]
+    if self.api.data is not None:
+      coldmeter = json.loads(self.api.data)
+      data["status_title"] = coldmeter["coldmeter"]["current_feeling"]
+      data["status_icon"] = URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"]
+      data["status_icon_info"] = coldmeter["coldmeter"]["clothtitle"]
 
     # bottom infromation
     forecast_line = content.select("ul#forcast_table li:nth-child(2) ul")[0]
