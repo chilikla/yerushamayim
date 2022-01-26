@@ -115,6 +115,7 @@ class Yerushamayim(SensorEntity):
       data["status_title"] = coldmeter["coldmeter"]["current_feeling"]
       data["status_icon"] = URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"]
       data["status_icon_info"] = coldmeter["coldmeter"]["clothtitle"]
+      data["laundry"] = coldmeter.get("laundryidx", {}).get("laundry_con_title", None)
 
     # bottom infromation
     forecast_line = content.select("ul#forcast_table li:nth-child(2) ul")[0]
