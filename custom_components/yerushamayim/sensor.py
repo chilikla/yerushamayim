@@ -103,14 +103,18 @@ class Yerushamayim(SensorEntity):
       it_feels_css_selector = "#itfeels span.value"
     elif len(it_feels_anchor_children) == 0:
       it_feels_css_selector = None
-    if it_feels_css_selector and len(it_feels_css_selector) > 0:
-      feels_like_temp = latest_now.select(it_feels_css_selector)[0].get_text().replace("°", "")
-      data["feels_like_temp"] = feels_like_temp
-      if (len(latest_now.select("#itfeels #itfeels_thsw")) > 0):
-        feels_like_temp_sun = latest_now.select("#itfeels #itfeels_thsw span.value")[0].get_text()
-        data["feels_like_temp_sun"] = feels_like_temp_sun
+    if it_feels_css_selector:
+      try:
+        feels_like_temp = latest_now.select(it_feels_css_selector)[0].get_text().replace("°", "")
+        data["feels_like_temp"] = feels_like_temp
+        if (len(latest_now.select("#itfeels #itfeels_thsw")) > 0):
+          feels_like_temp_sun = latest_now.select("#itfeels #itfeels_thsw span.value")[0].get_text()
+          data["feels_like_temp_sun"] = feels_like_temp_sun
+      except IndexError:
+        # no feels like attributes
+        _LOGGER.debug("Feels like attributes could not retrieved in Yerushamayim")
 
-    if self.api.data is not None:
+    if self.api is not None and self.api.data:
       coldmeter = json.loads(self.api.data)
       data["status_title"] = coldmeter["coldmeter"]["current_feeling"]
       data["status_icon"] = URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"]
@@ -134,8 +138,8 @@ class Yerushamayim(SensorEntity):
 
   async def async_update(self):
     """Get the latest data from the source and updates the state."""
-    await self.site.async_update()
-    await self.api.async_update()
+    await self.site.async_update(False)
+    await self.api.async_update(False)
     await self._async_update_from_rest_data()
 
   async def async_added_to_hass(self):
@@ -145,7 +149,7 @@ class Yerushamayim(SensorEntity):
   async def _async_update_from_rest_data(self):
     """Update state from the rest data."""
     if self.site.data is None:
-      _LOGGER.error("Unable to retrieve data for Yerushamayim")
+      _LOGGER.error("Yerushamayim wasn't available")
       return
 
     try:
