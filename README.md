@@ -6,7 +6,7 @@
 <br/>
 
 ### Instructions
-- Copy `custom_components/yerushamayim` folder to your `custom_components` Home Assistant foler
+- Copy `custom_components/yerushamayim` folder to your `custom_components` Home Assistant folder
 - Restart Home Assistant
 - Add to your configuration yaml:
     ```
