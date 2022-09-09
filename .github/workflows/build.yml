@@ -38,7 +38,7 @@ jobs:
         name: Release ${{ steps.tag_version.outputs.new_tag }}
         body: ${{ steps.tag_version.outputs.changelog }}
     - name: update README.md
-      run: sed "s/#-#-#VERSION#-#-#.*/### &#58;hammer_and_wrench&#58; Version&#58; ${{ steps.tag_version.outputs.new_tag }}/g" src/README-template.md > README.md
+      run: 'sed "s/#-#-#VERSION#-#-#.*/### :hammer_and_wrench: Version: ${{ steps.tag_version.outputs.new_tag }}/g" src/README-template.md > README.md'
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Commit updated README.md
