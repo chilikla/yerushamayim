@@ -25,10 +25,8 @@ jobs:
     #   with:
     #     name: dist folder
     #     path: dist
-    - name: List files
-      run: ls -lth
-    - name: List dist
-      run: ls -lth dist
+    - name: Git status
+      run: git status
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Commit to dist
