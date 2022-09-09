@@ -27,6 +27,8 @@ jobs:
     #     path: dist
     - name: List files
       run: ls -lth
+    - name: List dist
+      run: ls -lth dist
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Commit to dist
