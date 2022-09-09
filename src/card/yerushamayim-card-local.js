@@ -2,7 +2,12 @@ import {
   LitElement,
   html,
   css
-} from "https://unpkg.com/lit-element@2.0.1/lit-element.js?module";
+} from "lit";
+import logoNight from './assets/logo_night.png';
+import logo from './assets/logo_night.png';
+import iconMorning from './assets/morning_icon_night.png';
+import iconNoon from './assets/noon_icon_night.png';
+import iconNight from './assets/night_icon_night.png';
 
 function loadCSS(url) {
   const link = document.createElement("link");
@@ -11,7 +16,6 @@ function loadCSS(url) {
   link.href = url;
   document.head.appendChild(link);
 }
-
 loadCSS("https://fonts.googleapis.com/css2?family=Rubik&display=swap");
 
 class YerushamayimCard extends LitElement {
@@ -22,11 +26,11 @@ class YerushamayimCard extends LitElement {
     };
   }
 
-  render() {    
+  render() {
     const entityId = this.config.entity;
     const state = this.hass.states[entityId];
     const stateStr = state ? state.state : 'unavailable';
-    const logUrl = this.hass.states['sun.sun'].state === 'below_horizon' ? 'https://www.02ws.co.il/img/logo_night.png' : 'https://www.02ws.co.il/img/logo.png';
+    const logUrl = this.hass.states['sun.sun'].state === 'below_horizon' ? logoNight : logo;
 
     return html`
       <ha-card>
@@ -48,9 +52,9 @@ class YerushamayimCard extends LitElement {
                 </div>
                 <div>
                   <div class="forecast-icon">
-                    <img src="https://www.02ws.co.il/img/night_icon_night.png">
-                    <img src="https://www.02ws.co.il/img/noon_icon_night.png">
-                    <img src="https://www.02ws.co.il/img/morning_icon_night.png">
+                    <img src="${iconMorning}">
+                    <img src="${iconNoon}">
+                    <img src="${iconNight}">
                   </div>
                   <div class="forecast-icon">
                     <bdi>${state.attributes.night_temp} °C</bdi>
@@ -108,7 +112,7 @@ class YerushamayimCard extends LitElement {
   static get styles() {
     return css`
       :host {
-        font-family: "Rubik", "Open Sans", cursive;
+        font-family: "Rubik", Arial;
       }
       .container {
         background: linear-gradient(180deg, #3b4d5b 0%, #5e6d97 100%);
