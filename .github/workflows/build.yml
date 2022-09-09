@@ -22,7 +22,7 @@ jobs:
     - run: npm ci
     - run: npm run rollup
     - name: copy sensor files
-      run: mkdir dist/custom_components && mkdir dist/custom_components/yerushamayim && cd src/sensor/ && cp __init__.py sensor.py manifest.json ../../dist/custom_components/yerushamayim
+      run: mkdir -p dist/custom_components && mkdir -p dist/custom_components/yerushamayim && cd src/sensor/ && cp __init__.py sensor.py manifest.json ../../dist/custom_components/yerushamayim
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Commit to dist
