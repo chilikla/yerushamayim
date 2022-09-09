@@ -6,7 +6,7 @@
 <br/>
 
 ### Instructions
-- Copy `custom_components/yerushamayim` folder to your `custom_components` Home Assistant folder
+- Copy `dist/custom_components/yerushamayim` folder to your `custom_components` Home Assistant folder
 - Restart Home Assistant
 - Add to your configuration yaml:
     ```
@@ -14,8 +14,8 @@
     - platform: yerushamayim
     ```
 - Restart Home Assistant
-- Copy `www/yerushamayim-card.js` to your `www` Home Assistant foler
-- Edit your Lovelace dashboard and add to resources `/local/yerushamayim-card.js?v=0.0.79` as JavaScript Module
+- Copy `dist/www/yerushamayim-card.js` or `dist/www/yerushamayim-card-local.js` to your `www` Home Assistant folder
+- Edit your Lovelace dashboard and add to resources `/local/yerushamayim-card.js?v=1.0.0.` as JavaScript Module
 - Add manual card to your dashboard:
     ```
     type: custom:yerushamayim-card
