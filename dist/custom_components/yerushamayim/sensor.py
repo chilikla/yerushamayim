@@ -48,9 +48,9 @@ async def async_setup_platform(
   async_add_entities: AddEntitiesCallback,
   discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-  site = RestData(hass, "GET", URL, None, None, None, None, False)
+  site = RestData(hass, "GET", URL, "UTF-8", None, None, None, None, False)
   await site.async_update(False)
-  api = RestData(hass, "GET", API, None, None, None, None, False)
+  api = RestData(hass, "GET", API, "UTF-8", None, None, None, None, False)
   await api.async_update(False)
 
   if site.data is None:
