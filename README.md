@@ -3,7 +3,7 @@
 
 ### :hammer_and_wrench: Version: v1.0.12-hacs.4
 <br/>
-![screenshot](./screenshot.png)
+![screenshot](./screenshot.png?raw=true)
 
 ### Instructions
 - Add this repo to HACS' Custom repositories: `https://github.com/chilikla/yerushamayim`
