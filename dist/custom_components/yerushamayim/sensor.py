@@ -79,7 +79,7 @@ class Yerushamayim(SensorEntity):
 
   def getDayPart(self, data, forecast_line, time):
     part = forecast_line.select(".forcast_" + time + " .line:nth-child(1)")[0]
-    temp = part.select(".number")[0].get_text()
+    temp = part.select(".number")[0].get_text().strip()
     cloth = part.select(".cloth img")[0]
     cloth_icon = URL + cloth["src"]
     cloth_info = cloth["title"]

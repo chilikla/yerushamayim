@@ -1,11 +1,15 @@
 {
   "domain": "yerushamayim",
-  "name": "Yerushamayim",
+  "name": "Yerushamayim Weather",
+  "config_flow": true,
   "documentation": "https://github.com/chilikla/yerushamayim",
-  "dependencies": [],
-  "codeowners": ["chilikla"],
   "requirements": ["beautifulsoup4==4.10.0"],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
   "after_dependencies": ["rest"],
-  "iot_class": "local_polling",
-  "version": "0.0.13"
+  "codeowners": ["chilikla"],
+  "iot_class": "cloud_polling",
+  "version": "0.0.14"
 }
