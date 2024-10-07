@@ -1,9 +1,9 @@
 # Yerushamayim
 ## Unofficial Yerushamayim Home Assistant integration and Lovelace card
 
-### :hammer_and_wrench: Version: v1.0.15
+### :hammer_and_wrench: Version: v1.0.16
 <br/>
-![screenshot](https://raw.githubusercontent.com/chilikla/yerushamayim/refs/heads/main/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/chilikla/yerushamayim/main/screenshot.png)
 
 ### Instructions
 - Add this repo to HACS' Custom repositories: `https://github.com/chilikla/yerushamayim`
