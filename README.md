@@ -1,7 +1,7 @@
 # Yerushamayim
 ## Unofficial Yerushamayim Home Assistant integration and Lovelace card
 
-### :hammer_and_wrench: Version: v1.0.11
+### :hammer_and_wrench: Version: v1.0.12-hacs.0
 <br/>
 
 ### Instructions
