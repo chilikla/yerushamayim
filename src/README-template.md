@@ -3,7 +3,7 @@
 
 #-#-#VERSION#-#-#
 <br/>
-![screenshot](https://github.com/chilikla/yerushamayim/screenshot.png)
+![screenshot](screenshot.png)
 
 ### Instructions
 - Add this repo to HACS' Custom repositories: `https://github.com/chilikla/yerushamayim`
