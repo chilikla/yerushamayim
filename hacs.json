@@ -1,0 +1,6 @@
+{
+    "name": "Yerushamayim Weather",
+    "country": "IL",
+    "homeassistant": "2023.3.0",
+    "zip_release": false
+}
