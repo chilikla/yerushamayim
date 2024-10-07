@@ -1,0 +1,20 @@
+name: Validate
+
+on:
+  push:
+
+jobs:
+  validate-hacs-integration:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: HACS validation
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+  validate-hacs-plugin:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: HACS validation
+        uses: "hacs/action@main"
+        with:
+          category: "plugin"

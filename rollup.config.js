@@ -7,7 +7,7 @@ export default [
   {
     input: 'src/card/yerushamayim-card-local.js',
     output: {
-      file: 'dist/www/yerushamayim-card-local.js',
+      file: 'dist/yerushamayim-local.js',
       format: 'iife',
       plugins: terser({
         ecma: 2020,
@@ -31,7 +31,7 @@ export default [
   {
     input: 'src/card/yerushamayim-card.js',
     output: {
-      file: 'dist/www/yerushamayim-card.js',
+      file: 'dist/yerushamayim.js',
     },
     external: ['https://unpkg.com/lit-element@2.0.1/lit-element.js?module']
   }
