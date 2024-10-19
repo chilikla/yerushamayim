@@ -11,11 +11,6 @@ from homeassistant.data_entry_flow import FlowResult
 
 from .const import DOMAIN
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect."""
-    # TODO: Add any validation logic here if needed in the future
-    return {"title": "Yerushamayim Weather"}
-
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Yerushamayim."""
 
@@ -27,7 +22,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
-
+        
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
 

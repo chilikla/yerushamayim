@@ -1,6 +1,6 @@
 {
-    "title": "Yerushamayim Weather",
     "config": {
+        "title": "Yerushamayim Weather",
         "step": {
             "user": {
                 "title": "Add Yerushamayim Weather",
