@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.7](https://github.com/chilikla/yerushamayim/compare/v1.2.6...v1.2.7) (2024-10-19)
+
+
+### Bug Fixes
+
+* config flow form [#7](https://github.com/chilikla/yerushamayim/issues/7) ([8ac7ba6](https://github.com/chilikla/yerushamayim/commit/8ac7ba6a4dcd18e73f2abdf355d3f51377cf97f1))
+
 ## [1.2.6](https://github.com/chilikla/yerushamayim/compare/v1.2.5...v1.2.6) (2024-10-19)
 
 
