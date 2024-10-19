@@ -13,7 +13,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     # TODO: Add any validation logic here if needed in the future
     return {"title": "Yerushamayim Weather"}
 
-class YerushamayimFlowHandler(ConfigFlow, domain=DOMAIN):
+class ConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Yerushamayim."""
 
     VERSION = 1
