@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import voluptuous as vol
+
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
@@ -29,7 +31,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             return self.async_create_entry(title="Yerushamayim Weather", data={})
 
-        return self.async_show_form(step_id="user")
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema({}),
+            # description_placeholders={
+            #     "description": "Do you want to add Yerushamayim to Home Assistant?"
+            # },
+        )
 
     async def async_step_import(self, user_input: dict[str, Any]) -> FlowResult:
         """Handle import step."""
