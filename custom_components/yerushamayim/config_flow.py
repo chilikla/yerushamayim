@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResult
 
 from .const import DOMAIN
 
@@ -13,16 +14,16 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     # TODO: Add any validation logic here if needed in the future
     return {"title": "Yerushamayim Weather"}
 
-class ConfigFlow(ConfigFlow, domain=DOMAIN):
+class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Yerushamayim."""
 
     VERSION = 1
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    ) -> FlowResult:
         """Handle the initial step."""
-         await self.async_set_unique_id(DOMAIN)
+        await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
 
         if user_input is not None:
@@ -30,10 +31,12 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(step_id="user")
 
-    async_step_import = async_step_user
+    async def async_step_import(self, user_input: dict[str, Any]) -> FlowResult:
+        """Handle import step."""
+        return await self.async_step_user(user_input)
 
     async def async_step_onboarding(
-        self, _: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+        self, data: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle a flow initialized by onboarding."""
         return await self.async_step_user(user_input={})
