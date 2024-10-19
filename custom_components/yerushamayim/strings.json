@@ -1,0 +1,14 @@
+{
+    "title": "Yerushamayim Weather",
+    "config": {
+      "step": {
+        "user": {
+          "title": "[%key:component::yerushamayim::title%]",
+          "description": "Do you want to add Yerushamayim to Home Assistant?"
+        }
+      },
+      "abort": {
+        "already_configured": "[%key:common::config_flow::abort::already_configured_service%]"
+      }
+    }
+  }
