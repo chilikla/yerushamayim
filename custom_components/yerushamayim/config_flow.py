@@ -34,9 +34,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({}),
-            # description_placeholders={
-            #     "description": "Do you want to add Yerushamayim to Home Assistant?"
-            # },
+            description_placeholders={
+                "description": "Do you want to add Yerushamayim to Home Assistant?"
+            },
         )
 
     async def async_step_import(self, user_input: dict[str, Any]) -> FlowResult:
