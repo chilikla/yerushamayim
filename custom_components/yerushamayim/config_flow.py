@@ -25,6 +25,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
+        if self._async_current_entries():
+        return self.async_abort(reason="single_instance_allowed")
+
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
 
@@ -34,9 +37,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({}),
-            description_placeholders={
-                "description": "Do you want to add Yerushamayim to Home Assistant?"
-            },
+            title="Do you want to add Yerushamayim to Home Assistant?"
         )
 
     async def async_step_import(self, user_input: dict[str, Any]) -> FlowResult:
