@@ -121,7 +121,7 @@ class YerushamayimSensor(SensorEntity):
         # no feels like attributes
         _LOGGER.debug("Feels like attributes could not retrieved in Yerushamayim")
 
-    latest_humidity = soup.select("div#latesthumidity")[0]
+    latest_humidity = content.select("div#latesthumidity")[0]
     humidity = latest_humidity.select("div.paramvalue :first-child")[0].get_text().strip().replace("%", "")
     data["humidity"] = humidity
 
