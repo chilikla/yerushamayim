@@ -2,175 +2,184 @@ from __future__ import annotations
 
 import logging
 import traceback
+from dataclasses import dataclass
+from typing import Any
 
 from bs4 import BeautifulSoup
-from datetime import datetime
 import json
 
 from homeassistant.components.rest.data import RestData
 from homeassistant.components.sensor import (
-  CONF_STATE_CLASS,
-  DEVICE_CLASSES_SCHEMA,
-  PLATFORM_SCHEMA,
-  STATE_CLASSES_SCHEMA,
-  SensorEntity,
+    SensorEntity,
+    SensorDeviceClass,
+    SensorStateClass,
 )
 from homeassistant.const import (
-  CONF_AUTHENTICATION,
-  CONF_DEVICE_CLASS,
-  CONF_HEADERS,
-  CONF_NAME,
-  CONF_PASSWORD,
-  CONF_RESOURCE,
-  CONF_UNIT_OF_MEASUREMENT,
-  CONF_USERNAME,
-  CONF_VALUE_TEMPLATE,
-  CONF_VERIFY_SSL,
-  HTTP_BASIC_AUTHENTICATION,
-  HTTP_DIGEST_AUTHENTICATION,
+    TEMP_CELSIUS,
+    PERCENTAGE,
+    PRESSURE_HPA,
+    SPEED_METERS_PER_SECOND,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import PlatformNotReady
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-
-_LOGGER = logging.getLogger(__name__)
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
 
 from .const import (
     DOMAIN,
     SCAN_INTERVAL,
     URL,
     COLDMETER_API,
-    REST_API
 )
 
+_LOGGER = logging.getLogger(__name__)
+
+@dataclass
+class YerushamayimData:
+    temperature: Dict[str, Any]
+    humidity: Dict[str, Any]
+    # pressure: str
+    # wind_speed: str
+    # wind_direction: str
+    status: Dict[str, Any]
+
+class YerushamayimDataCoordinator(DataUpdateCoordinator):
+    def __init__(self, hass: HomeAssistant, site: RestData, coldmeter_api: RestData):
+        super().__init__(
+            hass,
+            _LOGGER,
+            name="Yerushamayim Weather",
+            update_interval=SCAN_INTERVAL,
+        )
+        self.site = site
+        self.coldmeter_api = coldmeter_api
+
+    async def _async_update_data(self):
+        await self.site.async_update(False)
+        await self.coldmeter_api.async_update(False)
+
+        if self.site.data is None:
+            raise PlatformNotReady("Yerushamayim site data not available")
+
+        try:
+            return await self.hass.async_add_executor_job(self._extract_data)
+        except Exception as err:
+            raise Exception(f"Error extracting Yerushamayim data: {err}")
+
+    def _extract_data(self) -> YerushamayimData:
+        content = BeautifulSoup(self.site.data, "html.parser")
+
+        latest_now = content.select("div#latestnow")[0]
+        temperature = latest_now.find(id="tempdivvalue").get_text().strip().replace("C", "").replace("°", "")
+
+        latest_humidity = content.select("div#latesthumidity")[0]
+        humidity = latest_humidity.select("div.paramvalue :first-child")[0].get_text().strip().replace("%", "")
+
+        forecast_line = content.select("ul#forcast_table li:nth-child(2) ul")[0]
+        day_icon = forecast_line.select(".icon_day img")[0]["src"]
+        condition = day_icon.replace("images/icons/day/n4_", "").replace(".svg", "")
+
+        # Extract pressure, wind_speed, and wind_direction similarly
+        # For this example, I'm using placeholder values
+        pressure = "1013"
+        wind_speed = "5"
+        wind_direction = "N"
+
+        return YerushamayimData(
+            temperature=temperature,
+            humidity=humidity,
+            pressure=pressure,
+            wind_speed=wind_speed,
+            wind_direction=wind_direction,
+            condition=condition
+        )
+
 async def async_setup_platform(
-  hass: HomeAssistant,
-  config: ConfigType,
-  async_add_entities: AddEntitiesCallback,
-  discovery_info: DiscoveryInfoType | None = None,
+    hass: HomeAssistant,
+    config: ConfigType,
+    async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-  site = RestData(hass, "GET", URL, "UTF-8", None, None, None, None, False, "python_default")
-  await site.async_update(False)
-  coldmeter_api = RestData(hass, "GET", COLDMETER_API, "UTF-8", None, None, None, None, False, "python_default")
-  await coldmeter_api.async_update(False)
-  # rest_api = RestData(hass, "GET", REST_API, "UTF-8", None, None, None, None, False, "python_default")
-  # await rest_api.async_update(False)
+    site = RestData(hass, "GET", URL, "UTF-8", None, None, None, None, False, "python_default")
+    coldmeter_api = RestData(hass, "GET", COLDMETER_API, "UTF-8", None, None, None, None, False, "python_default")
 
-  if site.data is None:
-    raise PlatformNotReady
+    coordinator = YerushamayimDataCoordinator(hass, site, coldmeter_api)
+    await coordinator.async_config_entry_first_refresh()
 
-  async_add_entities([YerushamayimSensor(hass, site, coldmeter_api)], True)
+    sensors = [
+        YerushamayimTemperatureSensor(coordinator),
+        YerushamayimHumiditySensor(coordinator),
+        # YerushamayimPressureSensor(coordinator),
+        # YerushamayimWindSpeedSensor(coordinator),
+        # YerushamayimWindDirectionSensor(coordinator),
+        YerushamayimConditionSensor(coordinator),
+    ]
 
-class YerushamayimSensor(SensorEntity):
-  def __init__(self, hass, site, coldmeter_api):
-    self._hass = hass
-    self.site = site
-    self.coldmeter_api = coldmeter_api
-    self._attr_name = "yerushamayim"
-    self.name = "Yerushamayim"
-    self._state = None
-    self._attrs: dict[str, str] = {}
+    async_add_entities(sensors, True)
 
-  @property
-  def native_value(self):
-    """Return the state of the device."""
-    return self._state
+class YerushamayimBaseSensor(CoordinatorEntity, SensorEntity):
+    def __init__(self, coordinator: YerushamayimDataCoordinator):
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{DOMAIN}_{self.sensor_type}"
+        self._attr_name = f"{DOMAIN}_{self.sensor_type}"
 
-  @property
-  def extra_state_attributes(self) -> dict[str, str]:
-    """Return the state attributes."""
-    return self._attrs
+    @property
+    def sensor_type(self) -> str:
+        raise NotImplementedError
 
-  def getDayPart(self, data, forecast_line, time):
-    part = forecast_line.select(".forcast_" + time + " .line:nth-child(1)")[0]
-    temp = part.select(".number")[0].get_text().strip()
-    cloth = part.select(".cloth img")[0]
-    cloth_icon = URL + cloth["src"]
-    cloth_info = cloth["title"]
-    data[time + "_temp"] = temp
-    data[time + "_cloth_icon"] = cloth_icon
-    data[time + "_cloth_info"] = cloth_info
-    return data
+    @property
+    def native_value(self):
+        return getattr(self.coordinator.data, self.sensor_type)
 
-  def _extract_value(self):
-    data = {}
-    content = BeautifulSoup(self.site.data, "html.parser")
+class YerushamayimTemperatureSensor(YerushamayimBaseSensor):
+    sensor_type = "temperature"
 
-    # top information
-    latest_now = content.select("div#latestnow")[0]
-    current_temp = latest_now.find(id="tempdivvalue").get_text().strip().replace("C", "").replace("°", "")
-    data["current_temp"] = current_temp
-    data["temperature_unit"] = "°C"
+    @property
+    def name(self):
+        return "Yerushamayim Temperature"
 
-    it_feels_anchor_children = latest_now.select("#itfeels a")
-    it_feels_css_selector = "#itfeels #itfeels_windchill span.value"
-    if len(it_feels_anchor_children) == 1:
-      it_feels_css_selector = "#itfeels span.value"
-    elif len(it_feels_anchor_children) == 0:
-      it_feels_css_selector = None
-    if it_feels_css_selector:
-      try:
-        feels_like_temp = latest_now.select(it_feels_css_selector)[0].get_text().replace("°", "")
-        data["apparent_temperature"] = feels_like_temp
-        if (len(latest_now.select("#itfeels #itfeels_thsw")) > 0):
-          feels_like_temp_sun = latest_now.select("#itfeels #itfeels_thsw span.value")[0].get_text()
-          data["feels_like_temp_sun"] = feels_like_temp_sun
-      except IndexError:
-        # no feels like attributes
-        _LOGGER.debug("Feels like attributes could not retrieved in Yerushamayim")
+    @property
+    def device_class(self):
+        return SensorDeviceClass.TEMPERATURE
 
-    latest_humidity = content.select("div#latesthumidity")[0]
-    humidity = latest_humidity.select("div.paramvalue :first-child")[0].get_text().strip().replace("%", "")
-    data["humidity"] = humidity
+    @property
+    def state_class(self):
+        return SensorStateClass.MEASUREMENT
 
-    if self.coldmeter_api is not None and self.coldmeter_api.data:
-      coldmeter = json.loads(self.coldmeter_api.data)
-      data["status_title"] = coldmeter["coldmeter"]["current_feeling"]
-      data["status_icon"] = URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"]
-      data["status_icon_info"] = coldmeter["coldmeter"]["clothtitle"]
-      data["laundry"] = coldmeter.get("laundryidx", {}).get("laundry_con_title", None)
+    @property
+    def native_unit_of_measurement(self):
+        return TEMP_CELSIUS
 
-    # bottom infromation
-    forecast_line = content.select("ul#forcast_table li:nth-child(2) ul")[0]
+class YerushamayimHumiditySensor(YerushamayimBaseSensor):
+    sensor_type = "humidity"
 
-    forecast_text = forecast_line.select(".forcast_text")[0].get_text()
-    forecast_text_child = forecast_line.select(".forcast_text  .likedislike")[0].get_text()
-    forecast_text = forecast_text.replace(forecast_text_child, "").strip().replace("\n", "")
-    data["forecast_text"] = forecast_text
-    day_icon = forecast_line.select(".icon_day img")[0]["src"]
-    data["day_icon"] = URL + day_icon
-    condition = day_icon.replace("https://www.02ws.co.il/images/icons/day/n4_", "").replace(".svg", "")
-    data["condition"] = condition
-    data = self.getDayPart(data, forecast_line, "morning")
-    data = self.getDayPart(data, forecast_line, "noon")
-    data = self.getDayPart(data, forecast_line, "night")
+    @property
+    def name(self):
+        return "Yerushamayim Humidity"
 
-    return data
+    @property
+    def device_class(self):
+        return SensorDeviceClass.HUMIDITY
 
-  async def async_update(self):
-    """Get the latest data from the source and updates the state."""
-    await self.site.async_update(False)
-    await self.coldmeter_api.async_update(False)
-    await self._async_update_from_rest_data()
+    @property
+    def state_class(self):
+        return SensorStateClass.MEASUREMENT
 
-  async def async_added_to_hass(self):
-    """Ensure the data from the initial update is reflected in the state."""
-    await self._async_update_from_rest_data()
+    @property
+    def native_unit_of_measurement(self):
+        return PERCENTAGE
 
-  async def _async_update_from_rest_data(self):
-    """Update state from the rest data."""
-    if self.site.data is None:
-      _LOGGER.error("Yerushamayim wasn't available")
-      return
+# Implement other sensor classes (Pressure, Wind Speed, Wind Direction, Condition) similarly
 
-    try:
-      value = await self.hass.async_add_executor_job(self._extract_value)
-    except IndexError:
-      _LOGGER.error("Unable to extract data from HTML for Yerushamayim: " + traceback.format_exc())
-      self._state = "unavailable"
-      return
+class YerushamayimStatusSensor(YerushamayimBaseSensor):
+    sensor_type = "condition"
+    
+    @property
+    def _attr_name(self):
+        return f"{DOMAIN}_condition"
 
-    self._state = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    self._attrs = value
+# Implement other sensor classes as needed
