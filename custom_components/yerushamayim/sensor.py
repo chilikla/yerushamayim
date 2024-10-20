@@ -4,7 +4,7 @@ import logging
 import traceback
 
 from bs4 import BeautifulSoup
-from datetime import timedelta, datetime
+from datetime import datetime
 import json
 
 from homeassistant.components.rest.data import RestData

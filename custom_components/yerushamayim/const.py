@@ -1,5 +1,7 @@
 """Constants for the Yerushamayim integration."""
 
+from datetime import timedelta
+
 DOMAIN = "yerushamayim"
 SCAN_INTERVAL = timedelta(seconds=180)
 URL = "https://www.02ws.co.il/"
