@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/chilikla/yerushamayim/compare/v1.3.0...v1.3.1) (2024-10-20)
+
+
+### Bug Fixes
+
+* improve sensor data [#2](https://github.com/chilikla/yerushamayim/issues/2) ([a672c1b](https://github.com/chilikla/yerushamayim/commit/a672c1bfaaf5aa7c06ece6a324e8f303d52c072a))
+
 ## [1.3.0](https://github.com/chilikla/yerushamayim/compare/v1.2.14...v1.3.0) (2024-10-20)
 
 
