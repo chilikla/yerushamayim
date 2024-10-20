@@ -37,10 +37,13 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = "yerushamayim"
-SCAN_INTERVAL = timedelta(seconds=180)
-URL = "https://www.02ws.co.il/"
-API = URL + "coldmeter_service.php?lang=1&json=1&cloth_type=e"
+from .const import (
+    DOMAIN,
+    SCAN_INTERVAL,
+    URL,
+    COLDMETER_API,
+    REST_API
+)
 
 async def async_setup_platform(
   hass: HomeAssistant,
@@ -50,20 +53,23 @@ async def async_setup_platform(
 ) -> None:
   site = RestData(hass, "GET", URL, "UTF-8", None, None, None, None, False, "python_default")
   await site.async_update(False)
-  api = RestData(hass, "GET", API, "UTF-8", None, None, None, None, False, "python_default")
-  await api.async_update(False)
+  coldmeter_api = RestData(hass, "GET", COLDMETER_API, "UTF-8", None, None, None, None, False, "python_default")
+  await coldmeter_api.async_update(False)
+  # rest_api = RestData(hass, "GET", REST_API, "UTF-8", None, None, None, None, False, "python_default")
+  # await rest_api.async_update(False)
 
   if site.data is None:
     raise PlatformNotReady
 
-  async_add_entities([Yerushamayim(hass, site, api)], True)
+  async_add_entities([YerushamayimSensor(hass, site, coldmeter_api)], True)
 
-class Yerushamayim(SensorEntity):
-  def __init__(self, hass, site, api):
+class YerushamayimSensor(SensorEntity):
+  def __init__(self, hass, site, coldmeter_api):
     self._hass = hass
     self.site = site
-    self.api = api
+    self.coldmeter_api = coldmeter_api
     self._attr_name = "yerushamayim"
+    self.name = "Yerushamayim"
     self._state = None
     self._attrs: dict[str, str] = {}
 
@@ -96,6 +102,7 @@ class Yerushamayim(SensorEntity):
     latest_now = content.select("div#latestnow")[0]
     current_temp = latest_now.find(id="tempdivvalue").get_text().strip().replace("C", "").replace("°", "")
     data["current_temp"] = current_temp
+    data["temperature_unit"] = "°C"
 
     it_feels_anchor_children = latest_now.select("#itfeels a")
     it_feels_css_selector = "#itfeels #itfeels_windchill span.value"
@@ -106,7 +113,7 @@ class Yerushamayim(SensorEntity):
     if it_feels_css_selector:
       try:
         feels_like_temp = latest_now.select(it_feels_css_selector)[0].get_text().replace("°", "")
-        data["feels_like_temp"] = feels_like_temp
+        data["apparent_temperature"] = feels_like_temp
         if (len(latest_now.select("#itfeels #itfeels_thsw")) > 0):
           feels_like_temp_sun = latest_now.select("#itfeels #itfeels_thsw span.value")[0].get_text()
           data["feels_like_temp_sun"] = feels_like_temp_sun
@@ -114,8 +121,12 @@ class Yerushamayim(SensorEntity):
         # no feels like attributes
         _LOGGER.debug("Feels like attributes could not retrieved in Yerushamayim")
 
-    if self.api is not None and self.api.data:
-      coldmeter = json.loads(self.api.data)
+    latest_humidity = soup.select("div#latesthumidity")[0]
+    humidity = latest_humidity.select("div.paramvalue :first-child")[0].get_text().strip().replace("%", "")
+    data["humidity"] = humidity
+
+    if self.coldmeter_api is not None and self.coldmeter_api.data:
+      coldmeter = json.loads(self.coldmeter_api.data)
       data["status_title"] = coldmeter["coldmeter"]["current_feeling"]
       data["status_icon"] = URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"]
       data["status_icon_info"] = coldmeter["coldmeter"]["clothtitle"]
@@ -130,6 +141,8 @@ class Yerushamayim(SensorEntity):
     data["forecast_text"] = forecast_text
     day_icon = forecast_line.select(".icon_day img")[0]["src"]
     data["day_icon"] = URL + day_icon
+    condition = day_icon.replace("https://www.02ws.co.il/images/icons/day/n4_", "").replace(".svg", "")
+    data["condition"] = condition
     data = self.getDayPart(data, forecast_line, "morning")
     data = self.getDayPart(data, forecast_line, "noon")
     data = self.getDayPart(data, forecast_line, "night")
@@ -139,7 +152,7 @@ class Yerushamayim(SensorEntity):
   async def async_update(self):
     """Get the latest data from the source and updates the state."""
     await self.site.async_update(False)
-    await self.api.async_update(False)
+    await self.coldmeter_api.async_update(False)
     await self._async_update_from_rest_data()
 
   async def async_added_to_hass(self):
