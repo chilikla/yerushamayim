@@ -31,7 +31,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({})
+            data_schema=vol.Schema({}),
+            description_placeholders={}
         )
 
     async def async_step_import(self, user_input: dict[str, Any]) -> FlowResult:
