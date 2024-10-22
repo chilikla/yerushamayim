@@ -127,11 +127,7 @@ class YerushamayimHumiditySensor(YerushamayimBaseSensor):
     @property
     def native_value(self):
         """Return the humidity value."""
-        humidity = self.coordinator.data.humidity.get("humidity")
-        try:
-            return float(humidity) if humidity is not None else None
-        except (ValueError, TypeError):
-            return None
+        return self.coordinator.data.humidity.get("humidity")
 
     @property
     def icon(self):
