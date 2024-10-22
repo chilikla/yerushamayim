@@ -1,5 +1,6 @@
 """Sensor platform for Yerushamayim integration."""
 from __future__ import annotations
+from datetime import datetime
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -52,11 +53,6 @@ class YerushamayimBaseSensor(CoordinatorEntity, SensorEntity):
         raise NotImplementedError
 
     @property
-    def native_value(self) -> None:
-        """No native value for these sensors."""
-        return None
-
-    @property
     def extra_state_attributes(self):
         """Return the state attributes."""
         return getattr(self.coordinator.data, self.sensor_type)
@@ -80,6 +76,20 @@ class YerushamayimTemperatureSensor(YerushamayimBaseSensor):
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
         return UnitOfTemperature.CELSIUS
+
+    @property
+    def native_value(self):
+        """Return the temperature value."""
+        temp = self.coordinator.data.temperature.get("temperature")
+        try:
+            return float(temp) if temp is not None else None
+        except (ValueError, TypeError):
+            return None
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return "mdi:thermometer"
 
     @property
     def extra_state_attributes(self):
@@ -115,6 +125,20 @@ class YerushamayimHumiditySensor(YerushamayimBaseSensor):
         return PERCENTAGE
 
     @property
+    def native_value(self):
+        """Return the humidity value."""
+        humidity = self.coordinator.data.humidity.get("humidity")
+        try:
+            return float(humidity) if humidity is not None else None
+        except (ValueError, TypeError):
+            return None
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return "mdi:water-percent"
+
+    @property
     def extra_state_attributes(self):
         """Return the state attributes with numeric conversion."""
         attrs = super().extra_state_attributes
@@ -132,8 +156,13 @@ class YerushamayimStatusSensor(YerushamayimBaseSensor):
     sensor_type = "status"
 
     @property
+    def native_value(self):
+        """Return the forecast text."""
+        return self.coordinator.data.status.get("forecast")
+
+    @property
     def icon(self):
-        """Return the icon of the sensor."""
+        """Return the icon."""
         return "mdi:weather-sunny"
 
 class YerushamayimForecastSensor(YerushamayimBaseSensor):
@@ -142,8 +171,22 @@ class YerushamayimForecastSensor(YerushamayimBaseSensor):
     sensor_type = "forecast"
 
     @property
+    def native_value(self):
+        """Return the day of the week."""
+        days = {
+            0: "Monday",
+            1: "Tuesday",
+            2: "Wednesday",
+            3: "Thursday",
+            4: "Friday",
+            5: "Saturday",
+            6: "Sunday"
+        }
+        return days[datetime.now().weekday()]
+
+    @property
     def icon(self):
-        """Return the icon of the sensor."""
+        """Return the icon."""
         return "mdi:clock-outline"
 
     @property

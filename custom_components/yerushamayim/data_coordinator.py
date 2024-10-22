@@ -134,7 +134,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         forecast_text_child = forecast_line.select(".forcast_text  .likedislike")[0].get_text()
         forecast_text = forecast_text.replace(forecast_text_child, "").strip().replace("\n", "")
         day_icon = forecast_line.select(".icon_day img")[0]["src"]
-        condition = day_icon.replace("https://www.02ws.co.il/images/icons/day/n4_", "").replace(".svg", "")
+        condition = day_icon.replace("images/icons/day/n4_", "").replace(".svg", "")
         status_data = {"forecast": forecast_text, "day_icon": URL + day_icon, "condition": condition}
 
         if self.coldmeter_api is not None and self.coldmeter_api.data:
@@ -143,7 +143,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 status_data.update({
                     "status": coldmeter["coldmeter"]["current_feeling"],
                     "cloth_icon": URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"],
-                    "cloth_text": coldmeter["coldmeter"]["clothtitle"],
+                    "cloth_info": coldmeter["coldmeter"]["clothtitle"],
                     "laundry": coldmeter.get("laundryidx", {}).get("laundry_con_title", None)
                 })
             except Exception as err:
