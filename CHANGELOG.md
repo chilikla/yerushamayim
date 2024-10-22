@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/chilikla/yerushamayim/compare/v1.4.1...v1.4.2) (2024-10-22)
+
+
+### Bug Fixes
+
+* multiple sensors [#3](https://github.com/chilikla/yerushamayim/issues/3) ([d3b5759](https://github.com/chilikla/yerushamayim/commit/d3b5759dad72191af968e06f610ce004228081c0))
+
 ## [1.4.1](https://github.com/chilikla/yerushamayim/compare/v1.4.0...v1.4.1) (2024-10-22)
 
 
