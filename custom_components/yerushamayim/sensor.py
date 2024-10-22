@@ -11,20 +11,22 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .data_coordinator import YerushamayimDataCoordinator
 
-async def async_setup_entry(
+async def async_setup_platform(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    config: ConfigType,
     async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-    """Set up the Yerushamayim sensors from config entry."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up the Yerushamayim sensors."""
+    coordinator = YerushamayimDataCoordinator(hass)
+    await coordinator.async_config_entry_first_refresh()
 
     sensors = [
         YerushamayimTemperatureSensor(coordinator),
