@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.5](https://github.com/chilikla/yerushamayim/compare/v1.4.4...v1.4.5) (2024-10-22)
+
+
+### Bug Fixes
+
+* humidity integer ([a2402d8](https://github.com/chilikla/yerushamayim/commit/a2402d8b4a8dbd1aeec7d52804cde59901db7264))
+
 ## [1.4.4](https://github.com/chilikla/yerushamayim/compare/v1.4.3...v1.4.4) (2024-10-22)
 
 
