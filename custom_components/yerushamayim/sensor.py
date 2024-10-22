@@ -1,14 +1,6 @@
+"""Sensor platform for Yerushamayim integration."""
 from __future__ import annotations
 
-import logging
-import traceback
-from dataclasses import dataclass
-from typing import Any
-
-from bs4 import BeautifulSoup
-import json
-
-from homeassistant.components.rest.data import RestData
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorDeviceClass,
@@ -17,86 +9,14 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     TEMP_CELSIUS,
     PERCENTAGE,
-    PRESSURE_HPA,
-    SPEED_METERS_PER_SECOND,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    DOMAIN,
-    SCAN_INTERVAL,
-    URL,
-    COLDMETER_API,
-)
-
-_LOGGER = logging.getLogger(__name__)
-
-@dataclass
-class YerushamayimData:
-    temperature: Dict[str, Any]
-    humidity: Dict[str, Any]
-    # pressure: str
-    # wind_speed: str
-    # wind_direction: str
-    status: Dict[str, Any]
-
-class YerushamayimDataCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass: HomeAssistant, site: RestData, coldmeter_api: RestData):
-        super().__init__(
-            hass,
-            _LOGGER,
-            name="Yerushamayim Weather",
-            update_interval=SCAN_INTERVAL,
-        )
-        self.site = site
-        self.coldmeter_api = coldmeter_api
-
-    async def _async_update_data(self):
-        await self.site.async_update(False)
-        await self.coldmeter_api.async_update(False)
-
-        if self.site.data is None:
-            raise PlatformNotReady("Yerushamayim site data not available")
-
-        try:
-            return await self.hass.async_add_executor_job(self._extract_data)
-        except Exception as err:
-            raise Exception(f"Error extracting Yerushamayim data: {err}")
-
-    def _extract_data(self) -> YerushamayimData:
-        content = BeautifulSoup(self.site.data, "html.parser")
-
-        latest_now = content.select("div#latestnow")[0]
-        temperature = latest_now.find(id="tempdivvalue").get_text().strip().replace("C", "").replace("°", "")
-
-        latest_humidity = content.select("div#latesthumidity")[0]
-        humidity = latest_humidity.select("div.paramvalue :first-child")[0].get_text().strip().replace("%", "")
-
-        forecast_line = content.select("ul#forcast_table li:nth-child(2) ul")[0]
-        day_icon = forecast_line.select(".icon_day img")[0]["src"]
-        condition = day_icon.replace("images/icons/day/n4_", "").replace(".svg", "")
-
-        # Extract pressure, wind_speed, and wind_direction similarly
-        # For this example, I'm using placeholder values
-        pressure = "1013"
-        wind_speed = "5"
-        wind_direction = "N"
-
-        return YerushamayimData(
-            temperature=temperature,
-            humidity=humidity,
-            pressure=pressure,
-            wind_speed=wind_speed,
-            wind_direction=wind_direction,
-            condition=condition
-        )
+from .const import DOMAIN
+from .data_coordinator import YerushamayimDataCoordinator
 
 async def async_setup_platform(
     hass: HomeAssistant,
@@ -104,82 +24,136 @@ async def async_setup_platform(
     async_add_entities: AddEntitiesCallback,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-    site = RestData(hass, "GET", URL, "UTF-8", None, None, None, None, False, "python_default")
-    coldmeter_api = RestData(hass, "GET", COLDMETER_API, "UTF-8", None, None, None, None, False, "python_default")
-
-    coordinator = YerushamayimDataCoordinator(hass, site, coldmeter_api)
-    await coordinator.async_config_entry_first_refresh()
+    """Set up the Yerushamayim sensors."""
+    coordinator = hass.data[DOMAIN]
 
     sensors = [
         YerushamayimTemperatureSensor(coordinator),
         YerushamayimHumiditySensor(coordinator),
-        # YerushamayimPressureSensor(coordinator),
-        # YerushamayimWindSpeedSensor(coordinator),
-        # YerushamayimWindDirectionSensor(coordinator),
-        YerushamayimConditionSensor(coordinator),
+        YerushamayimStatusSensor(coordinator),
+        YerushamayimForecastSensor(coordinator),
     ]
 
     async_add_entities(sensors, True)
 
 class YerushamayimBaseSensor(CoordinatorEntity, SensorEntity):
+    """Base class for Yerushamayim sensors."""
+
     def __init__(self, coordinator: YerushamayimDataCoordinator):
+        """Initialize the sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_{self.sensor_type}"
-        self._attr_name = f"{DOMAIN}_{self.sensor_type}"
+        self._attr_name = f"Yerushamayim {self.sensor_type.title()}"
 
     @property
     def sensor_type(self) -> str:
+        """Return the sensor type."""
         raise NotImplementedError
 
     @property
-    def native_value(self):
+    def native_value(self) -> None:
+        """No native value for these sensors."""
+        return None
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
         return getattr(self.coordinator.data, self.sensor_type)
 
 class YerushamayimTemperatureSensor(YerushamayimBaseSensor):
+    """Temperature sensor for Yerushamayim."""
+
     sensor_type = "temperature"
 
     @property
-    def name(self):
-        return "Yerushamayim Temperature"
-
-    @property
     def device_class(self):
+        """Return the device class."""
         return SensorDeviceClass.TEMPERATURE
 
     @property
     def state_class(self):
+        """Return the state class."""
         return SensorStateClass.MEASUREMENT
 
     @property
     def native_unit_of_measurement(self):
+        """Return the unit of measurement."""
         return TEMP_CELSIUS
 
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes with numeric conversions."""
+        attrs = super().extra_state_attributes
+        # Convert temperature values to float where possible
+        for key in attrs:
+            if attrs[key] is not None:
+                try:
+                    attrs[key] = float(attrs[key])
+                except (ValueError, TypeError):
+                    pass
+        return attrs
+
 class YerushamayimHumiditySensor(YerushamayimBaseSensor):
+    """Humidity sensor for Yerushamayim."""
+
     sensor_type = "humidity"
 
     @property
-    def name(self):
-        return "Yerushamayim Humidity"
-
-    @property
     def device_class(self):
+        """Return the device class."""
         return SensorDeviceClass.HUMIDITY
 
     @property
     def state_class(self):
+        """Return the state class."""
         return SensorStateClass.MEASUREMENT
 
     @property
     def native_unit_of_measurement(self):
+        """Return the unit of measurement."""
         return PERCENTAGE
 
-# Implement other sensor classes (Pressure, Wind Speed, Wind Direction, Condition) similarly
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes with numeric conversion."""
+        attrs = super().extra_state_attributes
+        for key in attrs:
+            if attrs[key] is not None:
+                try:
+                    attrs[key] = float(attrs[key])
+                except (ValueError, TypeError):
+                    pass
+        return attrs
 
 class YerushamayimStatusSensor(YerushamayimBaseSensor):
-    sensor_type = "condition"
-    
-    @property
-    def _attr_name(self):
-        return f"{DOMAIN}_condition"
+    """Status sensor for Yerushamayim."""
 
-# Implement other sensor classes as needed
+    sensor_type = "status"
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:weather-sunny"
+
+class YerushamayimForecastSensor(YerushamayimBaseSensor):
+    """Forecast sensor for Yerushamayim."""
+
+    sensor_type = "forecast"
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return "mdi:clock-outline"
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes with numeric conversions for temperatures."""
+        attrs = super().extra_state_attributes
+        # Convert temperature values to float where possible
+        for key in attrs:
+            if key.endswith('_temp') and attrs[key] is not None:
+                try:
+                    attrs[key] = float(attrs[key])
+                except (ValueError, TypeError):
+                    pass
+        return attrs
