@@ -7,8 +7,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    TEMP_CELSIUS,
     PERCENTAGE,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -25,7 +25,10 @@ async def async_setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Yerushamayim sensors."""
-    coordinator = hass.data[DOMAIN]
+    if discovery_info is None:
+        return
+        
+    coordinator = hass.data[DOMAIN][discovery_info["entry_id"]]
 
     sensors = [
         YerushamayimTemperatureSensor(coordinator),
@@ -78,7 +81,7 @@ class YerushamayimTemperatureSensor(YerushamayimBaseSensor):
     @property
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def extra_state_attributes(self):
