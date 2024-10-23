@@ -76,6 +76,6 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
     def condition(self) -> str | None:
         """Return the weather condition."""
         try:
-            return self.coordinator.data.status["condition"]
+            return self.coordinator.data.status["forecast"]
         except (KeyError, TypeError):
             return None
