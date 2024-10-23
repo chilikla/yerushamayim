@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/chilikla/yerushamayim/compare/v1.4.5...v1.5.0) (2024-10-23)
+
+
+### Features
+
+* configure integration from ui ([2833eb0](https://github.com/chilikla/yerushamayim/commit/2833eb09d872b204d52b86ec7d3118e9f7a78778))
+
 ## [1.4.5](https://github.com/chilikla/yerushamayim/compare/v1.4.4...v1.4.5) (2024-10-22)
 
 
