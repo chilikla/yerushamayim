@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/chilikla/yerushamayim/compare/v1.5.4...v1.6.0) (2024-10-23)
+
+
+### Features
+
+* consolidating code and features ([1d04bac](https://github.com/chilikla/yerushamayim/commit/1d04bacc2111aec0265f0171aebc4ba72d191330))
+
 ## [1.5.4](https://github.com/chilikla/yerushamayim/compare/v1.5.3...v1.5.4) (2024-10-23)
 
 
