@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/chilikla/yerushamayim/compare/v1.5.1...v1.5.2) (2024-10-23)
+
+
+### Bug Fixes
+
+* weather entity ([3c70c98](https://github.com/chilikla/yerushamayim/commit/3c70c9811ca57798727886317d8021da80dfc5d5))
+
 ## [1.5.1](https://github.com/chilikla/yerushamayim/compare/v1.5.0...v1.5.1) (2024-10-23)
 
 
