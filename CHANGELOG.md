@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/chilikla/yerushamayim/compare/v1.5.0...v1.5.1) (2024-10-23)
+
+
+### Bug Fixes
+
+* sensors from integration ([e0849e3](https://github.com/chilikla/yerushamayim/commit/e0849e3b288953a29cce5381d6000a38bf178fa6))
+
 ## [1.5.0](https://github.com/chilikla/yerushamayim/compare/v1.4.5...v1.5.0) (2024-10-23)
 
 
