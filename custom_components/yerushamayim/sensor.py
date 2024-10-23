@@ -19,7 +19,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .data_coordinator import YerushamayimDataCoordinator
 
-async def async_setup_platform(
+async def async_setup_entry(
     hass: HomeAssistant,
     config: ConfigType,
     async_add_entities: AddEntitiesCallback,
