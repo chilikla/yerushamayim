@@ -1,85 +1,52 @@
-"""Support for Yerushamayim weather service."""
+"""Weather platform for Yerushamayim integration."""
 from __future__ import annotations
 
 from homeassistant.components.weather import (
     WeatherEntity,
-    Forecast,
     WeatherEntityFeature,
 )
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    UnitOfTemperature
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-)
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+from .data_coordinator import YerushamayimDataCoordinator
 
-async def async_setup_entry(
+async def async_setup_platform(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    config: ConfigType,
     async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-    """Set up Yerushamayim weather based on a config entry."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([YerushamayimWeather(coordinator)], False)
+    coordinator = hass.data[DOMAIN]
+    async_add_entities([YerushamayimWeather(coordinator)], True)
 
 class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
-    """Representation of Yerushamayim weather data."""
-
-    _attr_has_entity_name = True
-    _attr_name = None
-    _attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
-
-    def __init__(self, coordinator: DataUpdateCoordinator) -> None:
-        """Initialize the Yerushamayim weather entity."""
+    def __init__(self, coordinator: YerushamayimDataCoordinator):
         super().__init__(coordinator)
         self._attr_unique_id = f"{DOMAIN}_weather"
+        self._attr_name = "Yerushamayim Weather"
 
     @property
-    def native_temperature(self) -> float | None:
-        """Return the temperature."""
-        return self.coordinator.data.get("current_temp")
+    def native_temperature(self) -> float:
+        return float(self.coordinator.data.temperature["temperature"])
+
+    @property
+    def native_apparent_temperature(self) -> float:
+        return float(self.coordinator.data.temperature["apparent_temperature"])
 
     @property
     def native_temperature_unit(self) -> str:
-        """Return the unit of measurement."""
-        return "°C"
+        return UnitOfTemperature.CELSIUS
 
     @property
-    def humidity(self) -> float | None:
-        """Return the humidity."""
-        # TODO: Implement if available
-        return None
+    def humidity(self) -> float:
+        return float(self.coordinator.data.humidity["humidity"])
 
     @property
-    def wind_speed(self) -> float | None:
-        """Return the wind speed."""
-        # TODO: Implement if available
-        return None
-
-    @property
-    def wind_bearing(self) -> float | str | None:
-        """Return the wind bearing."""
-        # TODO: Implement if available
-        return None
-
-    @property
-    def attribution(self) -> str:
-        """Return the attribution."""
-        return "Data provided by Yerushamayim Weather Service"
-
-    @property
-    def condition(self) -> str | None:
-        """Return the current condition."""
-        # TODO: Map the condition to HA states
-        return None
-
-    @property
-    def forecast(self) -> list[Forecast] | None:
-        """Return the forecast."""
-        # TODO: Implement forecast data
-        return None
-
-    # TODO: Implement other relevant properties and methods
+    def condition(self) -> str:
+        return self.coordinator.data.status["forecast"]
