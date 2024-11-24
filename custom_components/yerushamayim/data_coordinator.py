@@ -171,6 +171,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             except Exception as err:
                 _LOGGER.debug("Could not parse coldmeter data: %s", err)
 
+        rain_data = {}
+        wind_data = {}
         if self.rest_api is not None and self.rest_api.data:
             try:
                 rest_data = {}
