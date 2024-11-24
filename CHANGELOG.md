@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/chilikla/yerushamayim/compare/v1.6.1...v1.6.2) (2024-11-24)
+
+
+### Bug Fixes
+
+* rain and wind dicts [#2](https://github.com/chilikla/yerushamayim/issues/2) ([e0c76fc](https://github.com/chilikla/yerushamayim/commit/e0c76fcb22d6d59cbbbce835234a606073dcd93e))
+
 ## [1.6.1](https://github.com/chilikla/yerushamayim/compare/v1.6.0...v1.6.1) (2024-11-24)
 
 
