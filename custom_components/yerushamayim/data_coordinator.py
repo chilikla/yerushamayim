@@ -213,7 +213,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             temperature=temp_data,
             humidity=humidity_data,
             status=status_data,
-            forecast=forecast_data
-            rain=rain_data
+            forecast=forecast_data,
+            rain=rain_data,
             wind=wind_data
         )
