@@ -18,6 +18,7 @@ from .const import (
     SCAN_INTERVAL,
     URL,
     COLDMETER_API,
+    REST_API
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,6 +30,8 @@ class YerushamayimData:
     humidity: Dict[str, Any]
     status: Dict[str, Any]
     forecast: Dict[str, Any]
+    rain: Dict[str, Any]
+    wind: Dict[str, Any]
 
 class YerushamayimDataCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Yerushamayim data."""
@@ -73,6 +76,19 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "python_default"
         )
 
+        self.rest_api = RestData(
+            hass,
+            "GET",
+            REST_API,
+            "UTF-8",
+            None,
+            None,
+            headers,
+            None,
+            False,
+            "python_default"
+        )
+
     async def _async_update_data(self) -> YerushamayimData:
         """Fetch data from Yerushamayim."""
         try:
@@ -88,6 +104,12 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             await self.coldmeter_api.async_update(False)
         except Exception as err:
             _LOGGER.warning("Error updating from coldmeter API: %s", err)
+            # Don't raise here as we can continue with partial data
+
+        try:
+            await self.rest_api.async_update(False)
+        except Exception as err:
+            _LOGGER.warning("Error updating from REST API: %s", err)
             # Don't raise here as we can continue with partial data
 
         try:
@@ -149,6 +171,24 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             except Exception as err:
                 _LOGGER.debug("Could not parse coldmeter data: %s", err)
 
+        if self.rest_api is not None and self.rest_api.data:
+            try:
+                rest_data = {}
+                for line in self.rest_api.data.strip().split('\n'):
+                    parts = line.split('\t')
+                    if len(parts) >= 3:
+                        key = parts[1].split(':')[0].strip()
+                        value = parts[2].strip()
+                        rest_data[key] = value
+
+                # Rain data
+                rain_data = {"precipitation": rest_data["rainrate"], "precipitation_probability": rest_data["rainchance"]}
+
+                # Wind data
+                wind_data = {"wind_speed": rest_data["windspd"]}
+            except Exception as err:
+                _LOGGER.debug("Could not parse rest api data: %s", err)
+
         # Forecast data
         forecast_data = {}
         day_parts = ["morning", "noon", "night"]
@@ -172,4 +212,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             humidity=humidity_data,
             status=status_data,
             forecast=forecast_data
+            rain=rain_data
+            wind=wind_data
         )
