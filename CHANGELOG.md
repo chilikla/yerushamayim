@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.0](https://github.com/chilikla/yerushamayim/compare/v1.5.4...v1.6.0) (2024-11-24)
+
+
+### Features
+
+* consolidating code and features ([1d04bac](https://github.com/chilikla/yerushamayim/commit/1d04bacc2111aec0265f0171aebc4ba72d191330))
+* update weather entity with rain and wind data ([bd6a94d](https://github.com/chilikla/yerushamayim/commit/bd6a94df25b388cff2e422bd82c524cc8e16be04))
+
 ## [1.5.4](https://github.com/chilikla/yerushamayim/compare/v1.5.3...v1.5.4) (2024-10-23)
 
 
