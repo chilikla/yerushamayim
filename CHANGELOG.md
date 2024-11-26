@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.4](https://github.com/chilikla/yerushamayim/compare/v1.6.3...v1.6.4) (2024-11-26)
+
+
+### Bug Fixes
+
+* rest api json ([ae2a08e](https://github.com/chilikla/yerushamayim/commit/ae2a08e5e5157ffb3f3e1b6eac3d156e026e7e08))
+
 ## [1.6.3](https://github.com/chilikla/yerushamayim/compare/v1.6.2...v1.6.3) (2024-11-26)
 
 
