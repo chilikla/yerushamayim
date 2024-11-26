@@ -173,8 +173,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         rain_data = {}
         wind_data = {}
-        # _LOGGER.debug("rest_api", self.rest_api)
-        _LOGGER.debug("Yerushamayim is the best!", self.rest_api is not None, self.rest_api.data is not None)
+        _LOGGER.debug("Yerushamayim is the best! rest_api exists: %s, rest_api.data exists: %s", self.rest_api is not None, self.rest_api.data is not None)
         if self.rest_api is not None and self.rest_api.data:
             try:
                 rest = json.loads(self.rest_api.data)
