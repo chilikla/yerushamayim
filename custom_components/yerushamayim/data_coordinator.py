@@ -62,11 +62,12 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             method="GET",
             resource=URL,
             encoding="UTF-8",
-            username=None,
-            password=None,
-            headers=headers,
             auth=None,
+            headers=headers,
+            params=None
+            data=None
             verify_ssl=False,
+            ssl_cipher_list="python_default"
             timeout=30
         )
 
@@ -76,11 +77,12 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             method="GET",
             resource=COLDMETER_API,
             encoding="UTF-8",
-            username=None,
-            password=None,
-            headers=headers,
             auth=None,
+            headers=headers,
+            params=None
+            data=None
             verify_ssl=False,
+            ssl_cipher_list="python_default"
             timeout=30
         )
 
@@ -90,11 +92,12 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             method="GET",
             resource=REST_API,
             encoding="UTF-8",
-            username=None,
-            password=None,
-            headers=rest_headers,
             auth=None,
+            headers=rest_headers,
+            params=None
+            data=None
             verify_ssl=False,
+            ssl_cipher_list="python_default"
             timeout=30
         )
         
