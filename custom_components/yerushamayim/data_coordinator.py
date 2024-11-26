@@ -173,6 +173,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         rain_data = {}
         wind_data = {}
+        _LOGGER.debug("rest_api", self.rest_api)
         if self.rest_api is not None and self.rest_api.data:
             try:
                 rest_data = {}
