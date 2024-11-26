@@ -176,15 +176,15 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Yerushamayim is the best! rest_api exists: %s, rest_api.data exists: %s", self.rest_api is not None, self.rest_api.data is not None)
         if self.rest_api is not None and self.rest_api.data:
             try:
-                rest = json.loads(self.rest_api.data)
-                _LOGGER.debug("rest_api data: %s", json.dumps(rest, indent=2))
+                _LOGGER.debug("Raw REST API data: %s", self.rest_api.data)
                 rest_data = {}
-                for line in rest.strip().split('\n'):
+                for line in self.rest_api.data.strip().split('\n'):
                     parts = line.split('\t')
                     if len(parts) >= 3:
                         key = parts[1].split(':')[0].strip()
                         value = parts[2].strip()
                         rest_data[key] = value
+                _LOGGER.debug("Processed REST data: %s", rest_data)
 
                 # Rain data
                 rain_data = {"precipitation": rest_data["rainrate"], "precipitation_probability": rest_data["rainchance"]}
