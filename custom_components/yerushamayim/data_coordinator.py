@@ -46,7 +46,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         )
         
         # Initialize REST clients
-        generic_headers = {
+        headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
         rest_headers = {
@@ -56,32 +56,35 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "Connection": "keep-alive",
         }
         
+        _LOGGER.debug("Initializing site API with URL: %s", URL)
         self.site = RestData(
-            hass,
-            "GET",
-            URL,
-            "UTF-8",
-            None,
-            None,
-            generic_headers,
-            None,
-            False,
-            "python_default"
-        )
-        
-        self.coldmeter_api = RestData(
-            hass,
-            "GET",
-            COLDMETER_API,
-            "UTF-8",
-            None,
-            None,
-            generic_headers,
-            None,
-            False,
-            "python_default"
+            hass=hass,
+            method="GET",
+            resource=URL,
+            encoding="UTF-8",
+            username=None,
+            password=None,
+            headers=headers,
+            auth=None,
+            verify_ssl=False,
+            timeout=30
         )
 
+        _LOGGER.debug("Initializing coldmeter API with URL: %s", COLDMETER_API)
+        self.coldmeter_api = RestData(
+            hass=hass,
+            method="GET",
+            resource=COLDMETER_API,
+            encoding="UTF-8",
+            username=None,
+            password=None,
+            headers=headers,
+            auth=None,
+            verify_ssl=False,
+            timeout=30
+        )
+
+        _LOGGER.debug("Initializing REST API with URL: %s", REST_API)
         self.rest_api = RestData(
             hass=hass,
             method="GET",
@@ -94,6 +97,45 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             verify_ssl=False,
             timeout=30
         )
+        
+        # self.site = RestData(
+        #     hass,
+        #     "GET",
+        #     URL,
+        #     "UTF-8",
+        #     None,
+        #     None,
+        #     generic_headers,
+        #     None,
+        #     False,
+        #     "python_default"
+        # )
+        
+        # self.coldmeter_api = RestData(
+        #     hass,
+        #     "GET",
+        #     COLDMETER_API,
+        #     "UTF-8",
+        #     None,
+        #     None,
+        #     generic_headers,
+        #     None,
+        #     False,
+        #     "python_default"
+        # )
+
+        # self.rest_api = RestData(
+        #     hass=hass,
+        #     method="GET",
+        #     resource=REST_API,
+        #     encoding="UTF-8",
+        #     username=None,
+        #     password=None,
+        #     headers=rest_headers,
+        #     auth=None,
+        #     verify_ssl=False,
+        #     timeout=30
+        # )
 
         _LOGGER.debug("Initialized REST API with URL: %s and headers: %s", REST_API, rest_headers)
 
@@ -115,10 +157,24 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             # Don't raise here as we can continue with partial data
 
         try:
+            _LOGGER.debug("Attempting to fetch REST API data from: %s", URL)
             await self.rest_api.async_update(False)
+            _LOGGER.debug("REST API response received. Data exists: %s", self.rest_api.data is not None)
+            if self.rest_api.data is not None:
+                _LOGGER.debug("REST API data length: %d", len(self.rest_api.data))
         except Exception as err:
-            _LOGGER.warning("Error updating from REST API: %s", err)
-            # Don't raise here as we can continue with partial data
+            _LOGGER.error("Error updating from REST API: %s", err)
+            # raise PlatformNotReady("Failed to fetch site data") from err
+
+        if self.rest_api.data is None:
+            _LOGGER.error("Site data is None. URL: %s, Headers: %s", URL, self.rest_api.headers)
+            # raise PlatformNotReady("Site data is None")
+
+        # try:
+        #     await self.rest_api.async_update(False)
+        # except Exception as err:
+        #     _LOGGER.warning("Error updating from REST API: %s", err)
+        #     # Don't raise here as we can continue with partial data
 
         try:
             return await self.hass.async_add_executor_job(self._extract_data)
