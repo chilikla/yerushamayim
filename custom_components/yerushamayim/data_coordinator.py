@@ -173,26 +173,45 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         rain_data = {}
         wind_data = {}
-        _LOGGER.debug("Yerushamayim is the best! rest_api exists: %s, rest_api.data exists: %s", self.rest_api is not None, self.rest_api.data is not None)
-        if self.rest_api is not None and self.rest_api.data:
-            try:
-                _LOGGER.debug("Raw REST API data: %s", self.rest_api.data)
-                rest_data = {}
-                for line in self.rest_api.data.strip().split('\n'):
-                    parts = line.split('\t')
-                    if len(parts) >= 3:
-                        key = parts[1].split(':')[0].strip()
-                        value = parts[2].strip()
-                        rest_data[key] = value
-                _LOGGER.debug("Processed REST data: %s", rest_data)
+        _LOGGER.debug("REST API check - rest_api exists: %s", self.rest_api is not None)
+        if self.rest_api is not None:
+            _LOGGER.debug("REST API data exists: %s", bool(self.rest_api.data))
+            _LOGGER.debug("REST API data type: %s", type(self.rest_api.data))
+            _LOGGER.debug("REST API data content: %r", self.rest_api.data)  # Using %r for raw representation
 
-                # Rain data
-                rain_data = {"precipitation": rest_data["rainrate"], "precipitation_probability": rest_data["rainchance"]}
+            if self.rest_api.data:
+                try:
+                    _LOGGER.debug("Raw REST API data: %s", self.rest_api.data)
+                    
+                    rest_data = {}
+                    for line in self.rest_api.data.strip().split('\n'):
+                        _LOGGER.debug("Processing line: %s", line)
+                        parts = line.split('\t')
+                        if len(parts) >= 3:
+                            key = parts[1].split(':')[0].strip()
+                            value = parts[2].strip()
+                            rest_data[key] = value
+                            _LOGGER.debug("Added key-value: %s = %s", key, value)
 
-                # Wind data
-                wind_data = {"wind_speed": rest_data["windspd"]}
-            except Exception as err:
-                _LOGGER.debug("Could not parse rest api data: %s", err)
+                    _LOGGER.debug("Processed REST data: %s", rest_data)
+
+                    # Rain data
+                    rain_data = {
+                        "precipitation": rest_data["rainrate"], 
+                        "precipitation_probability": rest_data["rainchance"]
+                    }
+                    _LOGGER.debug("Rain data: %s", rain_data)
+
+                    # Wind data
+                    wind_data = {"wind_speed": rest_data["windspd"]}
+                    _LOGGER.debug("Wind data: %s", wind_data)
+
+                except Exception as err:
+                    _LOGGER.exception("Could not parse rest api data: %s", err)
+            else:
+                _LOGGER.debug("REST API data is empty or evaluates to False")
+        else:
+            _LOGGER.debug("REST API is None")
 
         # Forecast data
         forecast_data = {}
