@@ -251,7 +251,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                     _LOGGER.debug("Raw REST API data: %s", self.rest_api.data)
                     
                     rest_data = {}
-                    for row in BeautifulSoup.find_all('tr'):
+                    content = BeautifulSoup(self.rest_api.data, 'html.parser')
+                    for row in content.find_all('tr'):
                         _LOGGER.debug("Processing row: %s", row)
                         columns = row.find_all('td')
                         if len(columns) >= 2:
