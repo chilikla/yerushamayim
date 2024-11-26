@@ -178,6 +178,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("REST API data exists: %s", bool(self.rest_api.data))
             _LOGGER.debug("REST API data type: %s", type(self.rest_api.data))
             _LOGGER.debug("REST API data content: %r", self.rest_api.data)  # Using %r for raw representation
+            _LOGGER.debug("REST API content: %r", self.rest_api)
 
             if self.rest_api.data:
                 try:
