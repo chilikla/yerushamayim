@@ -173,11 +173,12 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         rain_data = {}
         wind_data = {}
-        _LOGGER.debug("rest_api", self.rest_api)
+        # _LOGGER.debug("rest_api", self.rest_api)
         if self.rest_api is not None and self.rest_api.data:
             try:
+                rest = json.loads(self.rest_api.data)
                 rest_data = {}
-                for line in self.rest_api.data.strip().split('\n'):
+                for line in rest.strip().split('\n'):
                     parts = line.split('\t')
                     if len(parts) >= 3:
                         key = parts[1].split(':')[0].strip()
