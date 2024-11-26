@@ -64,10 +64,10 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             encoding="UTF-8",
             auth=None,
             headers=headers,
-            params=None
-            data=None
+            params=None,
+            data=None,
             verify_ssl=False,
-            ssl_cipher_list="python_default"
+            ssl_cipher_list="python_default",
             timeout=30
         )
 
@@ -79,10 +79,10 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             encoding="UTF-8",
             auth=None,
             headers=headers,
-            params=None
-            data=None
+            params=None,
+            data=None,
             verify_ssl=False,
-            ssl_cipher_list="python_default"
+            ssl_cipher_list="python_default",
             timeout=30
         )
 
@@ -94,10 +94,10 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             encoding="UTF-8",
             auth=None,
             headers=rest_headers,
-            params=None
-            data=None
+            params=None,
+            data=None,
             verify_ssl=False,
-            ssl_cipher_list="python_default"
+            ssl_cipher_list="python_default",
             timeout=30
         )
         
