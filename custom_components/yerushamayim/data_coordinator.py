@@ -83,17 +83,19 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         )
 
         self.rest_api = RestData(
-            hass,
-            "GET",
-            REST_API,
-            "UTF-8",
-            None,
-            None,
-            rest_headers,
-            None,
-            False,
-            "python_default"
+            hass=hass,
+            method="GET",
+            resource=REST_API,
+            encoding="UTF-8",
+            username=None,
+            password=None,
+            headers=rest_headers,
+            auth=None,
+            verify_ssl=False,
+            timeout=30
         )
+
+        _LOGGER.debug("Initialized REST API with URL: %s and headers: %s", REST_API, rest_headers)
 
     async def _async_update_data(self) -> YerushamayimData:
         """Fetch data from Yerushamayim."""
