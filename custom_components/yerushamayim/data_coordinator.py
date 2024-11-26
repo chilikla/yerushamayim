@@ -177,7 +177,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         if self.rest_api is not None and self.rest_api.data:
             try:
                 rest = json.loads(self.rest_api.data)
-                _LOGGER.debug(json.dumps(rest, indent=2))
+                _LOGGER.debug("rest_api data: %s", json.dumps(rest, indent=2))
                 rest_data = {}
                 for line in rest.strip().split('\n'):
                     parts = line.split('\t')
