@@ -46,8 +46,14 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         )
         
         # Initialize REST clients
-        headers = {
+        generic_headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+        rest_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Connection": "keep-alive",
         }
         
         self.site = RestData(
@@ -57,7 +63,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "UTF-8",
             None,
             None,
-            headers,
+            generic_headers,
             None,
             False,
             "python_default"
@@ -70,7 +76,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "UTF-8",
             None,
             None,
-            headers,
+            generic_headers,
             None,
             False,
             "python_default"
@@ -83,7 +89,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "UTF-8",
             None,
             None,
-            headers,
+            rest_headers,
             None,
             False,
             "python_default"
@@ -178,21 +184,23 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("REST API data exists: %s", bool(self.rest_api.data))
             _LOGGER.debug("REST API data type: %s", type(self.rest_api.data))
             _LOGGER.debug("REST API data content: %r", self.rest_api.data)  # Using %r for raw representation
-            _LOGGER.debug("REST API content: %r", self.rest_api)
 
             if self.rest_api.data:
                 try:
                     _LOGGER.debug("Raw REST API data: %s", self.rest_api.data)
                     
                     rest_data = {}
-                    for line in self.rest_api.data.strip().split('\n'):
-                        _LOGGER.debug("Processing line: %s", line)
-                        parts = line.split('\t')
-                        if len(parts) >= 3:
-                            key = parts[1].split(':')[0].strip()
-                            value = parts[2].strip()
-                            rest_data[key] = value
-                            _LOGGER.debug("Added key-value: %s = %s", key, value)
+                    for row in soup.find_all('tr'):
+                        _LOGGER.debug("Processing row: %s", row)
+                        columns = row.find_all('td')
+                        if len(columns) >= 2:
+                            # Skip the index column (columns[0]) and split the second column
+                            key_value = columns[1].text.split(':')
+                            if len(key_value) == 2:
+                                key = key_value[0].strip()
+                                value = key_value[1].strip()
+                                rest_data[key] = value
+                                _LOGGER.debug("Added key-value: %s = %s", key, value)
 
                     _LOGGER.debug("Processed REST data: %s", rest_data)
 
