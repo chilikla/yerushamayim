@@ -124,7 +124,7 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
                 "datetime": datetime.now().date().isoformat()
                 "condition": self.coordinator.data.status.get("condition"),
                 "native_temperature": float(self.coordinator.data.temperature["temperature"]), 
-                "native_precipitation": float(self.coordinator.data.rain["precipitation"])ת
+                "native_precipitation": float(self.coordinator.data.rain["precipitation"]),
                 "precipitation_probability": int(self.coordinator.data.rain["precipitation_probability"])
             }
 
