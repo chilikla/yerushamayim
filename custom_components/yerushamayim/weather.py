@@ -134,5 +134,6 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
             _LOGGER.debug("Yerushamayim forecast: %s", forecast)
             return forecast
 
-        except Exception:
+        except Exception as err:
+            _LOGGER.debug("Yerushamayim forecast error: %s", err)
             return None
