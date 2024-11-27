@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.28](https://github.com/chilikla/yerushamayim/compare/v1.6.27...v1.6.28) (2024-11-27)
+
+
+### Bug Fixes
+
+* add forecast to weather entity [#7](https://github.com/chilikla/yerushamayim/issues/7) ([018aee9](https://github.com/chilikla/yerushamayim/commit/018aee90d923901a220593a965e0b27dc53fca1d))
+
 ## [1.6.27](https://github.com/chilikla/yerushamayim/compare/v1.6.26...v1.6.27) (2024-11-27)
 
 
