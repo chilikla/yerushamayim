@@ -17,6 +17,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .data_coordinator import YerushamayimDataCoordinator
 
+from datetime import datetime
+
 async def async_setup_platform(
     hass: HomeAssistant,
     config: ConfigType,
@@ -47,6 +49,7 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
         self._attr_unique_id = f"{DOMAIN}_weather"
         self._attr_name = "Yerushamayim Weather"
         self._attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+        self._attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
 
     @property
     def native_temperature(self) -> float | None:
@@ -110,4 +113,23 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
         try:
             return self.coordinator.data.wind["wind_direction"]
         except (ValueError, KeyError, TypeError):
+            return None
+
+    async def async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast."""
+        try:
+            forecasts: list[Forecast] = []
+            
+            forecast = {
+                "datetime": datetime.now().date().isoformat()
+                "condition": self.coordinator.data.status.get("condition"),
+                "native_temperature": float(self.coordinator.data.temperature["temperature"]), 
+                "native_precipitation": float(self.coordinator.data.rain["precipitation"])ת
+                "precipitation_probability": int(self.coordinator.data.rain["precipitation_probability"])
+            }
+
+            forecasts.append(forecast)
+            return forecasts
+
+        except Exception:
             return None
