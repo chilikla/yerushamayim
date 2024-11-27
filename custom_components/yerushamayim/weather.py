@@ -19,6 +19,8 @@ from .data_coordinator import YerushamayimDataCoordinator
 
 from datetime import datetime
 
+_LOGGER = logging.getLogger(__name__)
+
 async def async_setup_platform(
     hass: HomeAssistant,
     config: ConfigType,
@@ -129,6 +131,7 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
             }
 
             forecasts.append(forecast)
+            _LOGGER.debug("Yerushamayim forecasts: %s", forecasts)
             return forecasts
 
         except Exception:
