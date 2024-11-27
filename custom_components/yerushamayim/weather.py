@@ -1,6 +1,8 @@
 """Weather platform for Yerushamayim integration."""
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.weather import (
     WeatherEntity,
     WeatherEntityFeature,
