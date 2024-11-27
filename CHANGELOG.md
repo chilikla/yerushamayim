@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.24](https://github.com/chilikla/yerushamayim/compare/v1.6.23...v1.6.24) (2024-11-27)
+
+
+### Bug Fixes
+
+* add logger to debug rest api [#19](https://github.com/chilikla/yerushamayim/issues/19) ([15cb0ef](https://github.com/chilikla/yerushamayim/commit/15cb0eff541f689b0873df5dc5f2ff7deaffa6f1))
+* add logger to debug rest api [#20](https://github.com/chilikla/yerushamayim/issues/20) ([a39b485](https://github.com/chilikla/yerushamayim/commit/a39b4855ed76772532d23d3978da7108e305d572))
+
 ## [1.6.23](https://github.com/chilikla/yerushamayim/compare/v1.6.22...v1.6.23) (2024-11-27)
 
 
