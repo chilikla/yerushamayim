@@ -56,7 +56,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "Connection": "keep-alive",
         }
         
-        _LOGGER.debug("Initializing site API with URL: %s", URL)
         self.site = RestData(
             hass=hass,
             method="GET",
@@ -71,7 +70,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             timeout=30
         )
 
-        _LOGGER.debug("Initializing coldmeter API with URL: %s", COLDMETER_API)
         self.coldmeter_api = RestData(
             hass=hass,
             method="GET",
@@ -86,7 +84,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             timeout=30
         )
 
-        _LOGGER.debug("Initializing REST API with URL: %s", REST_API)
         self.rest_api = RestData(
             hass=hass,
             method="GET",
@@ -100,47 +97,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             ssl_cipher_list="python_default",
             timeout=30
         )
-        
-        # self.site = RestData(
-        #     hass,
-        #     "GET",
-        #     URL,
-        #     "UTF-8",
-        #     None,
-        #     None,
-        #     generic_headers,
-        #     None,
-        #     False,
-        #     "python_default"
-        # )
-        
-        # self.coldmeter_api = RestData(
-        #     hass,
-        #     "GET",
-        #     COLDMETER_API,
-        #     "UTF-8",
-        #     None,
-        #     None,
-        #     generic_headers,
-        #     None,
-        #     False,
-        #     "python_default"
-        # )
-
-        # self.rest_api = RestData(
-        #     hass=hass,
-        #     method="GET",
-        #     resource=REST_API,
-        #     encoding="UTF-8",
-        #     username=None,
-        #     password=None,
-        #     headers=rest_headers,
-        #     auth=None,
-        #     verify_ssl=False,
-        #     timeout=30
-        # )
-
-        _LOGGER.debug("Initialized REST API with URL: %s and headers: %s", REST_API, rest_headers)
 
     async def _async_update_data(self) -> YerushamayimData:
         """Fetch data from Yerushamayim."""
@@ -160,24 +116,10 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             # Don't raise here as we can continue with partial data
 
         try:
-            _LOGGER.debug("Attempting to fetch REST API data from: %s", URL)
             await self.rest_api.async_update(False)
-            _LOGGER.debug("REST API response received. Data exists: %s", self.rest_api.data is not None)
-            if self.rest_api.data is not None:
-                _LOGGER.debug("REST API data length: %d", len(self.rest_api.data))
         except Exception as err:
-            _LOGGER.error("Error updating from REST API: %s", err)
-            # raise PlatformNotReady("Failed to fetch site data") from err
-
-        if self.rest_api.data is None:
-            _LOGGER.error("Site data is None. URL: %s, Headers: %s", URL, self.rest_api.headers)
-            # raise PlatformNotReady("Site data is None")
-
-        # try:
-        #     await self.rest_api.async_update(False)
-        # except Exception as err:
-        #     _LOGGER.warning("Error updating from REST API: %s", err)
-        #     # Don't raise here as we can continue with partial data
+            _LOGGER.warning("Error updating from REST API: %s", err)
+            # Don't raise here as we can continue with partial data
 
         try:
             return await self.hass.async_add_executor_job(self._extract_data)
@@ -240,49 +182,34 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         rain_data = {}
         wind_data = {}
-        _LOGGER.debug("REST API check - rest_api exists: %s", self.rest_api is not None)
-        if self.rest_api is not None:
-            _LOGGER.debug("REST API data exists: %s", bool(self.rest_api.data))
-            _LOGGER.debug("REST API data type: %s", type(self.rest_api.data))
-            _LOGGER.debug("REST API data content: %r", self.rest_api.data)  # Using %r for raw representation
+        if self.rest_api is not None and self.rest_api.data:
+            try:              
+                rest_data = {}
+                content = BeautifulSoup(self.rest_api.data, 'html.parser')
+                for row in content.find_all('tr'):
+                    columns = row.find_all('td')
+                    if len(columns) >= 2:
+                        # Skip the index column (columns[0]) and split the second column
+                        key_value = columns[1].text.split(':')
+                        if len(key_value) == 2:
+                            key = key_value[0].strip()
+                            value = key_value[1].strip()
+                            rest_data[key] = value
+                            _LOGGER.debug("Added key-value: %s = %s", key, value)
 
-            if self.rest_api.data:
-                try:
-                    _LOGGER.debug("Raw REST API data: %s", self.rest_api.data)
-                    
-                    rest_data = {}
-                    content = BeautifulSoup(self.rest_api.data, 'html.parser')
-                    for row in content.find_all('tr'):
-                        _LOGGER.debug("Processing row: %s", row)
-                        columns = row.find_all('td')
-                        if len(columns) >= 2:
-                            # Skip the index column (columns[0]) and split the second column
-                            key_value = columns[1].text.split(':')
-                            if len(key_value) == 2:
-                                key = key_value[0].strip()
-                                value = key_value[1].strip()
-                                rest_data[key] = value
-                                _LOGGER.debug("Added key-value: %s = %s", key, value)
+                _LOGGER.debug("Processed Yerushamayim REST data: %s", rest_data)
 
-                    _LOGGER.debug("Processed REST data: %s", rest_data)
+                # Rain data
+                rain_data = {
+                    "precipitation": rest_data["rainrate"], 
+                    "precipitation_probability": rest_data["rainchance"]
+                }
 
-                    # Rain data
-                    rain_data = {
-                        "precipitation": rest_data["rainrate"], 
-                        "precipitation_probability": rest_data["rainchance"]
-                    }
-                    _LOGGER.debug("Rain data: %s", rain_data)
+                # Wind data
+                wind_data = {"wind_speed": rest_data["windspd"], "wind_direction": rest_data["winddir"]}
 
-                    # Wind data
-                    wind_data = {"wind_speed": rest_data["windspd"]}
-                    _LOGGER.debug("Wind data: %s", wind_data)
-
-                except Exception as err:
-                    _LOGGER.exception("Could not parse rest api data: %s", err)
-            else:
-                _LOGGER.debug("REST API data is empty or evaluates to False")
-        else:
-            _LOGGER.debug("REST API is None")
+            except Exception as err:
+                _LOGGER.exception("Could not parse rest api data: %s", err)
 
         # Forecast data
         forecast_data = {}

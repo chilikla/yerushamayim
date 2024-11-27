@@ -103,3 +103,11 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
             return int(self.coordinator.data.wind["wind_speed"])
         except (ValueError, KeyError, TypeError):
             return None
+
+    @property
+    def wind_bearing(self) -> int | None:
+        """Return the wind bearing"""
+        try:
+            return self.coordinator.data.wind["wind_direction"]
+        except (ValueError, KeyError, TypeError):
+            return None
