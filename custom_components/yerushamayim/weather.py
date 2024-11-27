@@ -6,6 +6,7 @@ import logging
 from homeassistant.components.weather import (
     WeatherEntity,
     WeatherEntityFeature,
+    Forecast
 )
 from homeassistant.const import (
     UnitOfTemperature
@@ -122,19 +123,23 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
     async def async_forecast_daily(self) -> list[Forecast] | None:
         """Return the daily forecast."""
         try:
-            forecasts: list[Forecast] = []
-            
-            forecast = {
-                "datetime": datetime.now().date().isoformat(),
-                "condition": self.coordinator.data.status.get("condition"),
-                "native_temperature": float(self.coordinator.data.temperature["temperature"]), 
-                "native_precipitation": float(self.coordinator.data.rain["precipitation"]),
-                "precipitation_probability": int(self.coordinator.data.rain["precipitation_probability"])
-            }
+            # forecast = {
+            #     "datetime": datetime.now().isoformat(),
+            #     "condition": self.coordinator.data.status.get("condition"),
+            #     "native_temperature": float(self.coordinator.data.temperature["temperature"]), 
+            #     "native_precipitation": float(self.coordinator.data.rain["precipitation"]),
+            #     "precipitation_probability": int(self.coordinator.data.rain["precipitation_probability"])
+            # }
+            forecast = [Forecast(
+                datetime=datetime.now().isoformat(),
+                condition=self.coordinator.data.status.get("condition"),
+                native_temperature=float(self.coordinator.data.temperature["temperature"]),
+                native_templow=float(self.coordinator.data.rain["precipitation"]),
+                precipitation_probability=int(self.coordinator.data.rain["precipitation_probability"])
+            )]
 
-            forecasts.append(forecast)
-            _LOGGER.debug("Yerushamayim forecasts: %s", forecasts)
-            return forecasts
+            _LOGGER.debug("Yerushamayim forecast: %s", forecast)
+            return forecast
 
         except Exception:
             return None
