@@ -123,13 +123,6 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
     async def async_forecast_daily(self) -> list[Forecast] | None:
         """Return the daily forecast."""
         try:
-            # forecast = {
-            #     "datetime": datetime.now().isoformat(),
-            #     "condition": self.coordinator.data.status.get("condition"),
-            #     "native_temperature": float(self.coordinator.data.temperature["temperature"]), 
-            #     "native_precipitation": float(self.coordinator.data.rain["precipitation"]),
-            #     "precipitation_probability": int(self.coordinator.data.rain["precipitation_probability"])
-            # }
             forecast = [Forecast(
                 datetime=datetime.now().isoformat(),
                 condition=self.coordinator.data.status.get("condition"),
