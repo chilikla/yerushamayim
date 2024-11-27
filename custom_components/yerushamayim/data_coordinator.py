@@ -195,7 +195,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                             key = key_value[0].strip()
                             value = key_value[1].strip()
                             rest_data[key] = value
-                            _LOGGER.debug("Added key-value: %s = %s", key, value)
 
                 _LOGGER.debug("Processed Yerushamayim REST data: %s", rest_data)
 
