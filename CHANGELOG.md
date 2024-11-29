@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.31](https://github.com/chilikla/yerushamayim/compare/v1.6.30...v1.6.31) (2024-11-29)
+
+
+### Bug Fixes
+
+* new precipitation sensor [#3](https://github.com/chilikla/yerushamayim/issues/3) ([c867175](https://github.com/chilikla/yerushamayim/commit/c867175842ce6a9efbbdf96ed085e618fb88b666))
+
 ## [1.6.30](https://github.com/chilikla/yerushamayim/compare/v1.6.29...v1.6.30) (2024-11-29)
 
 
