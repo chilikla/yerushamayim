@@ -35,6 +35,7 @@ async def async_setup_entry(
         YerushamayimHumiditySensor(coordinator),
         YerushamayimStatusSensor(coordinator),
         YerushamayimForecastSensor(coordinator),
+        YerushamayimPrecipitationSensor(coordinator)
     ]
 
     async_add_entities(sensors, True)
