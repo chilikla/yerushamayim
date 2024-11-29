@@ -223,7 +223,7 @@ class YerushamayimPrecipitationSensor(YerushamayimBaseSensor):
     @property
     def native_value(self):
         """Return the forecast text."""
-        return float(self.coordinator.data.rain["precipitation"])
+        return float(self.coordinator.data.precipitation["precipitation"])
 
     @property
     def icon(self):
