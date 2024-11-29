@@ -30,7 +30,7 @@ class YerushamayimData:
     humidity: Dict[str, Any]
     status: Dict[str, Any]
     forecast: Dict[str, Any]
-    rain: Dict[str, Any]
+    precipitation: Dict[str, Any]
     wind: Dict[str, Any]
 
 class YerushamayimDataCoordinator(DataUpdateCoordinator):
@@ -180,7 +180,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             except Exception as err:
                 _LOGGER.debug("Could not parse coldmeter data: %s", err)
 
-        rain_data = {}
+        precipitation_data = {}
         wind_data = {}
         if self.rest_api is not None and self.rest_api.data:
             try:              
@@ -198,8 +198,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
                 _LOGGER.debug("Processed Yerushamayim REST data: %s", rest_data)
 
-                # Rain data
-                rain_data = {
+                # Precipitation data
+                precipitation_data = {
                     "precipitation": rest_data["rainrate"], 
                     "precipitation_probability": rest_data["rainchance"]
                 }
@@ -233,6 +233,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             humidity=humidity_data,
             status=status_data,
             forecast=forecast_data,
-            rain=rain_data,
+            precipitation=precipitation_data,
             wind=wind_data
         )

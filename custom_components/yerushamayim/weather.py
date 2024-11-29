@@ -87,22 +87,6 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
             return self.coordinator.data.status["forecast"]
         except (KeyError, TypeError):
             return None
-    
-    @property
-    def native_precipitation(self) -> float | None:
-        """Return the precipitation"""
-        try:
-            return float(self.coordinator.data.rain["precipitation"])
-        except (ValueError, KeyError, TypeError):
-            return None
-
-    @property
-    def precipitation_probability(self) -> int | None:
-        """Return the precipitation probability"""
-        try:
-            return int(self.coordinator.data.rain["precipitation_probability"])
-        except (ValueError, KeyError, TypeError):
-            return None
 
     @property
     def native_wind_speed(self) -> int | None:
@@ -127,8 +111,8 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
                 datetime=datetime.now().isoformat(),
                 condition=self.coordinator.data.status.get("condition"),
                 native_temperature=float(self.coordinator.data.temperature["temperature"]),
-                precipitation=float(self.coordinator.data.rain["precipitation"]),
-                precipitation_probability=int(self.coordinator.data.rain["precipitation_probability"])
+                precipitation=float(self.coordinator.data.precipitation["precipitation"]),
+                precipitation_probability=int(self.coordinator.data.precipitation["precipitation_probability"])
             )]
 
             _LOGGER.debug("Yerushamayim forecast: %s", forecast)

@@ -5,11 +5,12 @@ from datetime import datetime
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorDeviceClass,
-    SensorStateClass,
+    SensorStateClass
 )
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfTemperature,
+    UnitOfPrecipitationDepth
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -197,3 +198,53 @@ class YerushamayimForecastSensor(YerushamayimBaseSensor):
                 except (ValueError, TypeError):
                     pass
         return attrs
+
+class YerushamayimPrecipitationSensor(YerushamayimBaseSensor):
+    """Precipitation sensor for Yerushamayim."""
+
+    sensor_type = "precipitation"
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return SensorDeviceClass.PRECIPITATION 
+
+    @property
+    def state_class(self):
+        """Return the state class."""
+        return SensorStateClass.MEASUREMENT
+
+    @property
+    def native_unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return UnitOfPrecipitationDepth.MILLIMETERS
+
+    @property
+    def native_value(self):
+        """Return the forecast text."""
+        return float(self.coordinator.data.rain["precipitation"])
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return "mdi:weather-pouring"
+
+    # @property
+    # def precipitation_probability(self) -> int | None:
+    #     """Return the precipitation probability"""
+    #     try:
+    #         return int(self.coordinator.data.precipitation["precipitation_probability"])
+    #     except (ValueError, KeyError, TypeError):
+    #         return None
+
+    # @property
+    # def extra_state_attributes(self):
+    #     """Return the state attributes with numeric conversions for precipitation."""
+    #     attrs = super().extra_state_attributes
+    #     for key in attrs:
+    #         if key.endswith('_temp') and attrs[key] is not None:
+    #             try:
+    #                 attrs[key] = float(attrs[key])
+    #             except (ValueError, TypeError):
+    #                 pass
+    #     return attrs
