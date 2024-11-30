@@ -230,22 +230,9 @@ class YerushamayimPrecipitationSensor(YerushamayimBaseSensor):
         """Return the icon."""
         return "mdi:weather-pouring"
 
-    # @property
-    # def precipitation_probability(self) -> int | None:
-    #     """Return the precipitation probability"""
-    #     try:
-    #         return int(self.coordinator.data.precipitation["precipitation_probability"])
-    #     except (ValueError, KeyError, TypeError):
-    #         return None
-
-    # @property
-    # def extra_state_attributes(self):
-    #     """Return the state attributes with numeric conversions for precipitation."""
-    #     attrs = super().extra_state_attributes
-    #     for key in attrs:
-    #         if key.endswith('_temp') and attrs[key] is not None:
-    #             try:
-    #                 attrs[key] = float(attrs[key])
-    #             except (ValueError, TypeError):
-    #                 pass
-    #     return attrs
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes with numeric conversions for precipitation."""
+        attrs = super().extra_state_attributes
+        attrs["precipitation_probability_unit"] = PERCENTAGE
+        return attrs

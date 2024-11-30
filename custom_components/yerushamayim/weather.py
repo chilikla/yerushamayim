@@ -109,7 +109,6 @@ class YerushamayimWeather(CoordinatorEntity, WeatherEntity):
         try:
             forecast = [Forecast(
                 datetime=datetime.now().isoformat(),
-                condition=self.coordinator.data.status.get("condition"),
                 native_temperature=float(self.coordinator.data.temperature["temperature"]),
                 precipitation=float(self.coordinator.data.precipitation["precipitation"]),
                 precipitation_probability=int(self.coordinator.data.precipitation["precipitation_probability"])
