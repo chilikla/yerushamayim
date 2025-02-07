@@ -216,6 +216,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         for day_part in day_parts:  
             try:
                 part = forecast_line.select(".forcast_" + day_part + " .line:nth-child(1)")[0]
+                _LOGGER.debug("%s part: %s", day_part, part)
                 temp = part.select(".number")[0].get_text().strip()
                 cloth = part.select(".cloth img")[0]
                 cloth_icon = URL + cloth["src"]
