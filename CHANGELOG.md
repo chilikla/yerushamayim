@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.33](https://github.com/chilikla/yerushamayim/compare/v1.6.32...v1.6.33) (2025-02-07)
+
+
+### Bug Fixes
+
+* temperature missing [#1](https://github.com/chilikla/yerushamayim/issues/1) ([204b2b7](https://github.com/chilikla/yerushamayim/commit/204b2b7899b9f162f61309dbeef0847e9fd5013a))
+
 ## [1.6.32](https://github.com/chilikla/yerushamayim/compare/v1.6.31...v1.6.32) (2024-11-30)
 
 
