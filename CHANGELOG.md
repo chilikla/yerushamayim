@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.35](https://github.com/chilikla/yerushamayim/compare/v1.6.34...v1.6.35) (2025-03-29)
+
+
+### Bug Fixes
+
+* update readme ([64934e3](https://github.com/chilikla/yerushamayim/commit/64934e3310ea39e8f8f800ba580d4556a8044ef7))
+
 ## [1.6.34](https://github.com/chilikla/yerushamayim/compare/v1.6.33...v1.6.34) (2025-02-07)
 
 
