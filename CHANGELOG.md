@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/chilikla/yerushamayim/compare/v1.6.35...v1.7.0) (2025-09-30)
+
+
+### Features
+
+* move to new rest api ([1a5b7f3](https://github.com/chilikla/yerushamayim/commit/1a5b7f39dd0c2c06f438d5cab1427d2a090395db))
+
 ## [1.6.35](https://github.com/chilikla/yerushamayim/compare/v1.6.34...v1.6.35) (2025-03-29)
 
 
