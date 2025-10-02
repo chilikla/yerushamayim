@@ -12,6 +12,7 @@ from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
+    NEW_URL,
     SCAN_INTERVAL,
     URL,
     COLDMETER_API,
@@ -104,7 +105,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             data = json.loads(self.json_api.data)
             jws = data.get("jws", {})
             current = jws.get("current", {})
-            today_forecast = jws.get("todayForecast", {})
+            forecast_days = jws.get("forecastDays", [])
+            today_forecast = forecast_days[0] if forecast_days else {}
         except Exception as err:
             _LOGGER.error("Failed to parse JSON API data: %s", err)
             raise PlatformNotReady("Failed to parse JSON API data") from err
@@ -161,11 +163,15 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         forecast_data = {}
         if today_forecast:
             forecast_data.update({
-                "morning_temp": today_forecast.get("temp_morning", ""),
-                "noon_temp": today_forecast.get("temp_day", ""),
-                "night_temp": today_forecast.get("temp_night", ""),
-                "hightemp": today_forecast.get("hightemp", ""),
-                "lowtemp": today_forecast.get("lowtemp", ""),
+                "morning_temp": today_forecast.get("TempLow", ""),
+                "morning_cloth_icon": NEW_URL + today_forecast.get("TempLowCloth", ""),
+                "morning_cloth_info": today_forecast.get("TempLowClothTitle1", ""),
+                "noon_temp": today_forecast.get("TempHigh", ""),
+                "noon_cloth_icon": NEW_URL + today_forecast.get("TempHighCloth", ""),
+                "noon_cloth_info": today_forecast.get("TempHighClothTitle1", ""),
+                "night_temp": today_forecast.get("TempNight", ""),
+                "night_cloth_icon": NEW_URL + today_forecast.get("TempNightCloth", ""),
+                "night_cloth_info": today_forecast.get("TempNightClothTitle1", ""),
             })
 
         return YerushamayimData(
