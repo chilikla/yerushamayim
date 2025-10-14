@@ -1,37 +1,41 @@
+name: Handle release
+
 on:
   push:
     branches:
       - main
+      - beta
 
 permissions:
   contents: write
   pull-requests: write
 
-name: Handle release
-
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - name: create new release
+      - name: Create new release
         uses: googleapis/release-please-action@v4
         id: release
         with:
-          # this assumes that you have created a personal access token
-          # (PAT) and configured it as a GitHub action secret named
-          # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
-          # token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
-          # this is a built-in strategy in release-please, see "Action Inputs"
-          # for more options
+          # Use a different release type that supports pre-releases based on commit history
           release-type: simple
-      - uses: actions/checkout@v4
+          # This is the crucial part:
+          # Mark the release as a pre-release if the branch is 'beta'
+          prerelease: ${{ github.ref_name == 'beta' }}
+
+      - name: Checkout code if release was created
+        uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
-      - name: update README.md
+
+      - name: Update README.md
         if: ${{ steps.release.outputs.release_created }}
         run: |
-          sed -i 's/Current version: .*/Current version: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}/' README.md
-      - name: commit updated README.md
+          # The tag_name output includes the 'v' prefix
+          sed -i 's/Current version: .*/Current version: ${{ steps.release.outputs.tag_name }}/' README.md
+
+      - name: Commit updated README.md
         if: ${{ steps.release.outputs.release_created }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update version in README to ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          commit_message: "chore: update version in README to ${{ steps.release.outputs.tag_name }}"
