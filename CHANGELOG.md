@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/chilikla/yerushamayim/compare/v1.7.1...v1.7.2) (2025-10-14)
+
+
+### Bug Fixes
+
+* urls and status data ([c9105f5](https://github.com/chilikla/yerushamayim/commit/c9105f5b4b9210a81a2f52d5d2d4dccbe81f1bf9))
+
 ## [1.7.1](https://github.com/chilikla/yerushamayim/compare/v1.7.0...v1.7.1) (2025-10-02)
 
 
