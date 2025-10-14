@@ -173,7 +173,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 "night_cloth_info": today_forecast.get("TempNightClothTitle1", ""),
             })
             status_data.update({
-                "forecat": today_forecast.get("lang1", ""),
+                "forecast": today_forecast.get("lang1", ""),
             })
 
         return YerushamayimData(
