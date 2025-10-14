@@ -12,9 +12,8 @@ from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
-    NEW_URL,
-    SCAN_INTERVAL,
     URL,
+    SCAN_INTERVAL,
     COLDMETER_API,
     JSON_API
 )
@@ -164,14 +163,17 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         if today_forecast:
             forecast_data.update({
                 "morning_temp": today_forecast.get("TempLow", ""),
-                "morning_cloth_icon": NEW_URL + today_forecast.get("TempLowCloth", ""),
+                "morning_cloth_icon": URL + today_forecast.get("TempLowCloth", ""),
                 "morning_cloth_info": today_forecast.get("TempLowClothTitle1", ""),
                 "noon_temp": today_forecast.get("TempHigh", ""),
-                "noon_cloth_icon": NEW_URL + today_forecast.get("TempHighCloth", ""),
+                "noon_cloth_icon": URL + today_forecast.get("TempHighCloth", ""),
                 "noon_cloth_info": today_forecast.get("TempHighClothTitle1", ""),
                 "night_temp": today_forecast.get("TempNight", ""),
-                "night_cloth_icon": NEW_URL + today_forecast.get("TempNightCloth", ""),
+                "night_cloth_icon": URL + today_forecast.get("TempNightCloth", ""),
                 "night_cloth_info": today_forecast.get("TempNightClothTitle1", ""),
+            })
+            status_data.update({
+                "forecat": today_forecast.get("lang1", ""),
             })
 
         return YerushamayimData(
