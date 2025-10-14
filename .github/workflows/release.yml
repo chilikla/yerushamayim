@@ -18,9 +18,8 @@ jobs:
         uses: googleapis/release-please-action@v4
         id: release
         with:
-          # Use the 'config-file' input to choose the correct configuration
+          target-branch: ${{ github.ref_name }}
           config-file: ${{ github.ref_name == 'beta' && 'release-please-config-beta.json' || 'release-please-config.json' }}
-          # Specify the manifest file so release-please can track the version
           manifest-file: .release-please-manifest.json
 
       - uses: actions/checkout@v4
