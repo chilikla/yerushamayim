@@ -20,7 +20,7 @@ jobs:
         with:
           target-branch: ${{ github.ref_name }}
           config-file: ${{ github.ref_name == 'beta' && 'release-please-config-beta.json' || 'release-please-config.json' }}
-          manifest-file: .release-please-manifest.json
+          manifest-file: ${{ github.ref_name == 'beta' && '.release-please-manifest-beta.json' || '.release-please-manifest.json' }}
 
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
