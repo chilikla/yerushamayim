@@ -14,8 +14,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import (
     URL,
     SCAN_INTERVAL,
-    COLDMETER_API,
     JSON_API,
+    COLDMETER_API,
     ALERTS_PAGE
 )
 
