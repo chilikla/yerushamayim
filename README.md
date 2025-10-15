@@ -1,7 +1,7 @@
 # Yerushamayim
 ## Unofficial Yerushamayim integration
 
-### Current version: v1.7.2
+### Current version: v1.7.3-beta.1
 <br/>
 
 ![screenshot](https://raw.githubusercontent.com/chilikla/yerushamayim/main/screenshot.png)
