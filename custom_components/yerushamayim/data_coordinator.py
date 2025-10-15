@@ -106,6 +106,12 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.warning("Error updating from coldmeter API: %s", err)
             # Don't raise here as we can continue with partial data
+            
+        try:
+            await self.alerts.async_update(False)
+        except Exception as err:
+            _LOGGER.warning("Error updating from alerts page: %s", err)
+            # Don't raise here as we can continue with partial data
 
         try:
             return await self.hass.async_add_executor_job(self._extract_data)
