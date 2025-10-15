@@ -1,5 +1,92 @@
 # Changelog
 
+## [1.1.1](https://github.com/chilikla/yerushamayim/compare/v1.7.2-beta.1...v1.1.1) (2025-10-15)
+
+
+### Features
+
+* config flow ([33a5d8b](https://github.com/chilikla/yerushamayim/commit/33a5d8b440cff2f386d7a3b4bcb795bb6e943db6))
+* configure integration from ui ([2833eb0](https://github.com/chilikla/yerushamayim/commit/2833eb09d872b204d52b86ec7d3118e9f7a78778))
+* consolidating code and features ([1d04bac](https://github.com/chilikla/yerushamayim/commit/1d04bacc2111aec0265f0171aebc4ba72d191330))
+* improve sensor data ([7fb1b26](https://github.com/chilikla/yerushamayim/commit/7fb1b2620dace8159e3c658bd874edc6aa7e8298))
+* move to new rest api ([1a5b7f3](https://github.com/chilikla/yerushamayim/commit/1a5b7f39dd0c2c06f438d5cab1427d2a090395db))
+* multiple sensors ([#23](https://github.com/chilikla/yerushamayim/issues/23)) ([588d165](https://github.com/chilikla/yerushamayim/commit/588d165aca501e6d44a3c86a33332412377046bf))
+* new release action ([c584930](https://github.com/chilikla/yerushamayim/commit/c584930d3835ba1a876534a30c5286c5a5ce77f7))
+* update weather entity with rain and wind data ([bd6a94d](https://github.com/chilikla/yerushamayim/commit/bd6a94df25b388cff2e422bd82c524cc8e16be04))
+
+
+### Bug Fixes
+
+* add forecast to weather entity ([7d5f83e](https://github.com/chilikla/yerushamayim/commit/7d5f83e50c3843a2fac28db3b65b08c62b8c263d))
+* add forecast to weather entity [#2](https://github.com/chilikla/yerushamayim/issues/2) ([6401db0](https://github.com/chilikla/yerushamayim/commit/6401db00dcc8c2a0aed7be2371446495c7192e7f))
+* add forecast to weather entity [#3](https://github.com/chilikla/yerushamayim/issues/3) ([cbdbf42](https://github.com/chilikla/yerushamayim/commit/cbdbf4255b240f77bc1d852d8c95937a66174941))
+* add forecast to weather entity [#5](https://github.com/chilikla/yerushamayim/issues/5) ([ae536a8](https://github.com/chilikla/yerushamayim/commit/ae536a8e90bdd1aaa0f487fd1c27f538c44d2d7b))
+* add forecast to weather entity [#6](https://github.com/chilikla/yerushamayim/issues/6) ([a0f877b](https://github.com/chilikla/yerushamayim/commit/a0f877b93dcd5cd66e5939be409185f0d8a75838))
+* add forecast to weather entity [#7](https://github.com/chilikla/yerushamayim/issues/7) ([018aee9](https://github.com/chilikla/yerushamayim/commit/018aee90d923901a220593a965e0b27dc53fca1d))
+* add logger to debug rest api ([848bb65](https://github.com/chilikla/yerushamayim/commit/848bb65e421cbfd390213c8f3901a47259993961))
+* add logger to debug rest api [#10](https://github.com/chilikla/yerushamayim/issues/10) ([93b3c33](https://github.com/chilikla/yerushamayim/commit/93b3c332cf5b063c325b212a85dcaecc318e7aad))
+* add logger to debug rest api [#11](https://github.com/chilikla/yerushamayim/issues/11) ([12906cf](https://github.com/chilikla/yerushamayim/commit/12906cf7dd9b7039336c283f2c80c130153c9c9a))
+* add logger to debug rest api [#12](https://github.com/chilikla/yerushamayim/issues/12) ([d68bed3](https://github.com/chilikla/yerushamayim/commit/d68bed3e179d0adfce0a4f33ccf269af9204a8d0))
+* add logger to debug rest api [#13](https://github.com/chilikla/yerushamayim/issues/13) ([846ea48](https://github.com/chilikla/yerushamayim/commit/846ea484d5a91a652c056ebcb76ea5f21cd6811d))
+* add logger to debug rest api [#14](https://github.com/chilikla/yerushamayim/issues/14) ([eb86cfe](https://github.com/chilikla/yerushamayim/commit/eb86cfee2394e72e75f851a507fcbbc8b13bdf2a))
+* add logger to debug rest api [#15](https://github.com/chilikla/yerushamayim/issues/15) ([09ec9fc](https://github.com/chilikla/yerushamayim/commit/09ec9fcb497b70c3426f8e43e30231eb1acd88d2))
+* add logger to debug rest api [#16](https://github.com/chilikla/yerushamayim/issues/16) ([0d4831c](https://github.com/chilikla/yerushamayim/commit/0d4831cf4e5c0212fe4b7d1dda86bfae677d9956))
+* add logger to debug rest api [#17](https://github.com/chilikla/yerushamayim/issues/17) ([624ed63](https://github.com/chilikla/yerushamayim/commit/624ed635820d3fcfcbd6f9b4b2a5090bbe716e9d))
+* add logger to debug rest api [#18](https://github.com/chilikla/yerushamayim/issues/18) ([ec57d4e](https://github.com/chilikla/yerushamayim/commit/ec57d4e54b6dee3a5e2ae99bc76de7c2a7e229ce))
+* add logger to debug rest api [#19](https://github.com/chilikla/yerushamayim/issues/19) ([15cb0ef](https://github.com/chilikla/yerushamayim/commit/15cb0eff541f689b0873df5dc5f2ff7deaffa6f1))
+* add logger to debug rest api [#2](https://github.com/chilikla/yerushamayim/issues/2) ([741f68a](https://github.com/chilikla/yerushamayim/commit/741f68a01c20f0785b03559b7a74ec3526e7107b))
+* add logger to debug rest api [#20](https://github.com/chilikla/yerushamayim/issues/20) ([a39b485](https://github.com/chilikla/yerushamayim/commit/a39b4855ed76772532d23d3978da7108e305d572))
+* add logger to debug rest api [#21](https://github.com/chilikla/yerushamayim/issues/21) ([625259f](https://github.com/chilikla/yerushamayim/commit/625259f4ec30c4d701bfe6dbae4b94300cad616c))
+* add logger to debug rest api [#3](https://github.com/chilikla/yerushamayim/issues/3) ([ad812fe](https://github.com/chilikla/yerushamayim/commit/ad812fe775205150e746479ca9072e93d2f40bfe))
+* add logger to debug rest api [#4](https://github.com/chilikla/yerushamayim/issues/4) ([6a762e8](https://github.com/chilikla/yerushamayim/commit/6a762e8daa5d2ac0e4c3d8aeda6f03b60b054967))
+* add logger to debug rest api [#5](https://github.com/chilikla/yerushamayim/issues/5) ([094a3ff](https://github.com/chilikla/yerushamayim/commit/094a3ff0a01fdbd1bfc79f3c748e4eaed79d937e))
+* add logger to debug rest api [#6](https://github.com/chilikla/yerushamayim/issues/6) ([74a1e56](https://github.com/chilikla/yerushamayim/commit/74a1e5683a8654421ef4fe6ea4f2ce80c9efe63d))
+* add logger to debug rest api [#7](https://github.com/chilikla/yerushamayim/issues/7) ([e8ee40f](https://github.com/chilikla/yerushamayim/commit/e8ee40f87468ce08287046e2743e568f5490ee38))
+* add logger to debug rest api [#8](https://github.com/chilikla/yerushamayim/issues/8) ([89fb744](https://github.com/chilikla/yerushamayim/commit/89fb7440e908192f5c4826c33078f96cc3cbc759))
+* add logger to debug rest api [#9](https://github.com/chilikla/yerushamayim/issues/9) ([5507b91](https://github.com/chilikla/yerushamayim/commit/5507b91d4a25e044b216335450915c947ff9a9f2))
+* config flow form ([6369348](https://github.com/chilikla/yerushamayim/commit/63693482b620fb6561e65fa07103426a9bfcf269))
+* config flow form [#10](https://github.com/chilikla/yerushamayim/issues/10) ([0e46d60](https://github.com/chilikla/yerushamayim/commit/0e46d604479eb9313faa44d57edb0565308c9f1e))
+* config flow form [#11](https://github.com/chilikla/yerushamayim/issues/11) ([19b867b](https://github.com/chilikla/yerushamayim/commit/19b867b89a29cef739bdd460187b3aebb8c318ff))
+* config flow form [#12](https://github.com/chilikla/yerushamayim/issues/12) ([a6247df](https://github.com/chilikla/yerushamayim/commit/a6247df088d673aa147eef4ff50b3d9a93b3922a))
+* config flow form [#13](https://github.com/chilikla/yerushamayim/issues/13) ([7bafb5b](https://github.com/chilikla/yerushamayim/commit/7bafb5b6e3d3006c1f4ce85fc14f1de07aebd7b0))
+* config flow form [#14](https://github.com/chilikla/yerushamayim/issues/14) ([2e9e3bd](https://github.com/chilikla/yerushamayim/commit/2e9e3bd4f8580ca056fc6df7f802f38b81619319))
+* config flow form [#2](https://github.com/chilikla/yerushamayim/issues/2) ([80d723d](https://github.com/chilikla/yerushamayim/commit/80d723ddb1172c0fae445e416475893c03a2ef54))
+* config flow form [#3](https://github.com/chilikla/yerushamayim/issues/3) ([826ee03](https://github.com/chilikla/yerushamayim/commit/826ee0385516585bb667ea89b34707cdd90c7a47))
+* config flow form [#4](https://github.com/chilikla/yerushamayim/issues/4) ([c486923](https://github.com/chilikla/yerushamayim/commit/c486923c6832b45106d696e9ac872c9f2a153949))
+* config flow form [#5](https://github.com/chilikla/yerushamayim/issues/5) ([db11a8a](https://github.com/chilikla/yerushamayim/commit/db11a8ab8c69a1915464292fa8a4e4105fa675b8))
+* config flow form [#6](https://github.com/chilikla/yerushamayim/issues/6) ([9453660](https://github.com/chilikla/yerushamayim/commit/9453660095457bfcfe1e9e5ad39a9396bd5f1a7e))
+* config flow form [#7](https://github.com/chilikla/yerushamayim/issues/7) ([8ac7ba6](https://github.com/chilikla/yerushamayim/commit/8ac7ba6a4dcd18e73f2abdf355d3f51377cf97f1))
+* config flow form [#8](https://github.com/chilikla/yerushamayim/issues/8) ([6a39852](https://github.com/chilikla/yerushamayim/commit/6a39852acbe908ca71837e084803bc4fe4e582b9))
+* config flow form [#9](https://github.com/chilikla/yerushamayim/issues/9) ([a4243ca](https://github.com/chilikla/yerushamayim/commit/a4243ca2578f1e4517ec5a932ef8a478778d543a))
+* humidity integer ([a2402d8](https://github.com/chilikla/yerushamayim/commit/a2402d8b4a8dbd1aeec7d52804cde59901db7264))
+* improve sensor data [#2](https://github.com/chilikla/yerushamayim/issues/2) ([a672c1b](https://github.com/chilikla/yerushamayim/commit/a672c1bfaaf5aa7c06ece6a324e8f303d52c072a))
+* improve sensor data [#3](https://github.com/chilikla/yerushamayim/issues/3) ([c14cb9d](https://github.com/chilikla/yerushamayim/commit/c14cb9d71f617624ac34459757734efa681ba7bc))
+* multiple sensors [#2](https://github.com/chilikla/yerushamayim/issues/2) ([342bdfc](https://github.com/chilikla/yerushamayim/commit/342bdfcd86b8392ef9dc9b36f38d695b93436c24))
+* multiple sensors [#3](https://github.com/chilikla/yerushamayim/issues/3) ([d3b5759](https://github.com/chilikla/yerushamayim/commit/d3b5759dad72191af968e06f610ce004228081c0))
+* multiple sensors [#4](https://github.com/chilikla/yerushamayim/issues/4) ([fcbbfe2](https://github.com/chilikla/yerushamayim/commit/fcbbfe267bac240d53942ad4042508ad0d3bde01))
+* multiple sensors [#5](https://github.com/chilikla/yerushamayim/issues/5) ([20d933f](https://github.com/chilikla/yerushamayim/commit/20d933fc0873dbb0cce99a9b77e9f908020154e8))
+* new precipitation sensor ([272ed05](https://github.com/chilikla/yerushamayim/commit/272ed0555766fd273ff816e6c50a9e5e6c90365f))
+* new precipitation sensor [#2](https://github.com/chilikla/yerushamayim/issues/2) ([be0cd39](https://github.com/chilikla/yerushamayim/commit/be0cd39913c91c7d141324d761754866a6d27eb7))
+* new precipitation sensor [#3](https://github.com/chilikla/yerushamayim/issues/3) ([c867175](https://github.com/chilikla/yerushamayim/commit/c867175842ce6a9efbbdf96ed085e618fb88b666))
+* precipitation sensor ([d5f8da8](https://github.com/chilikla/yerushamayim/commit/d5f8da8634c4c1f5744f4e299e71b6fa3aaff0a2))
+* rain and wind dicts ([dee21f8](https://github.com/chilikla/yerushamayim/commit/dee21f890cbfe400eed2d44ad0db6a1aa485f9c3))
+* rain and wind dicts [#2](https://github.com/chilikla/yerushamayim/issues/2) ([e0c76fc](https://github.com/chilikla/yerushamayim/commit/e0c76fcb22d6d59cbbbce835234a606073dcd93e))
+* release action location ([f50a630](https://github.com/chilikla/yerushamayim/commit/f50a630cd278820bf761f8ddde4ba73791a60e3e))
+* rest api json ([ae2a08e](https://github.com/chilikla/yerushamayim/commit/ae2a08e5e5157ffb3f3e1b6eac3d156e026e7e08))
+* sensors from integration ([e0849e3](https://github.com/chilikla/yerushamayim/commit/e0849e3b288953a29cce5381d6000a38bf178fa6))
+* status data ([d3211cf](https://github.com/chilikla/yerushamayim/commit/d3211cf183bb662c8d838a0b6a05fa7190b2a1f1))
+* temperature missing [#1](https://github.com/chilikla/yerushamayim/issues/1) ([204b2b7](https://github.com/chilikla/yerushamayim/commit/204b2b7899b9f162f61309dbeef0847e9fd5013a))
+* temperature missing [#2](https://github.com/chilikla/yerushamayim/issues/2) ([6902c3b](https://github.com/chilikla/yerushamayim/commit/6902c3b1067ac0d95180be2e28ba326b4907bf47))
+* update readme ([64934e3](https://github.com/chilikla/yerushamayim/commit/64934e3310ea39e8f8f800ba580d4556a8044ef7))
+* weather entity ([3c70c98](https://github.com/chilikla/yerushamayim/commit/3c70c9811ca57798727886317d8021da80dfc5d5))
+* weather entity [#2](https://github.com/chilikla/yerushamayim/issues/2) ([3f4203a](https://github.com/chilikla/yerushamayim/commit/3f4203a9d976a1ab1447faac31424eaa41e9e6aa))
+* weather entity [#3](https://github.com/chilikla/yerushamayim/issues/3) ([3f94bfc](https://github.com/chilikla/yerushamayim/commit/3f94bfcf8283dedc5be9c87148749262b6c31346))
+
+
+### Miscellaneous Chores
+
+* release 1.1.1 ([f693fd2](https://github.com/chilikla/yerushamayim/commit/f693fd23d66e878a1752def5e8bcacc86364ea37))
+
 ## [1.7.1](https://github.com/chilikla/yerushamayim/compare/v1.7.0...v1.7.1) (2025-10-02)
 
 
