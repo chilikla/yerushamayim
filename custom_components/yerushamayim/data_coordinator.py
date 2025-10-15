@@ -16,7 +16,7 @@ from .const import (
     SCAN_INTERVAL,
     JSON_API,
     COLDMETER_API,
-    ALERTS_PAGE,
+    ALERTS_PAGE
 )
 
 _LOGGER = logging.getLogger(__name__)
