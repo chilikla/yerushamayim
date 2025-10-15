@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.3](https://github.com/chilikla/yerushamayim/compare/v1.7.2...v1.7.3) (2025-10-15)
+
+
+### Bug Fixes
+
+* import alerts page url ([f83b506](https://github.com/chilikla/yerushamayim/commit/f83b5068b564f381f44ce4e2c6675551d0b7da63))
+* initial alerts support ([6f51186](https://github.com/chilikla/yerushamayim/commit/6f51186b6d8e786d1bf4ea81df58242d41253f7a))
+
 ## [1.7.2](https://github.com/chilikla/yerushamayim/compare/v1.7.1...v1.7.2) (2025-10-14)
 
 
