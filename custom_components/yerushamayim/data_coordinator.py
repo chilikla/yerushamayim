@@ -75,6 +75,20 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             ssl_cipher_list="python_default",
             timeout=30
         )
+        
+        self.alerts = RestData(
+            hass=hass,
+            method="GET",
+            resource=ALERTS_PAGE,
+            encoding="UTF-8",
+            auth=None,
+            headers=headers,
+            params=None,
+            data=None,
+            verify_ssl=False,
+            ssl_cipher_list="python_default",
+            timeout=30
+        )
 
     async def _async_update_data(self) -> YerushamayimData:
         """Fetch data from Yerushamayim."""
