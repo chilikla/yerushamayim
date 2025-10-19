@@ -206,9 +206,9 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         forecast_data = []
         for day_forecast in forecast_days:
             forecast_item = {
-                "date": day.get("date", ""),
-                "day_name_eng": day.get("day_name0", ""),
-                "day_name_heb": day.get("day_name1", ""),
+                "date": day_forecast.get("date", ""),
+                "day_name_eng": day_forecast.get("day_name0", ""),
+                "day_name_heb": day_forecast.get("day_name1", ""),
                 "morning_temp": day_forecast.get("TempLow", ""),
                 "morning_cloth_icon": URL + day_forecast.get("TempLowCloth", ""),
                 "morning_cloth_info": day_forecast.get("TempLowClothTitle1", ""),
