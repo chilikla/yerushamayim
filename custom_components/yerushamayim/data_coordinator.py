@@ -226,69 +226,41 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             if self.alerts.data is None:
                 _LOGGER.warning("Alerts data is None")
             else:
+                import re
                 alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
                 _LOGGER.debug("Alerts HTML parsed successfully")
                 article = alerts_content.find("article")
 
                 if not article:
                     _LOGGER.warning("No article element found in alerts page")
-                    # Try alternative parsing - look for divs with alert content
-                    all_text = alerts_content.get_text()
-                    _LOGGER.debug("Alerts page text preview: %s", all_text[:200] if all_text else "Empty")
                 else:
-                    # Log the article structure to understand the HTML
-                    _LOGGER.debug("Article HTML structure: %s", str(article)[:500])
+                    # Get all text from the article
+                    full_text = article.get_text(separator="\n", strip=True)
 
-                    spans = article.find_all("span")
-                    _LOGGER.debug("Found %d span elements in article", len(spans))
+                    # Split by date pattern (YYYY-MM-DD HH:MM:SS)
+                    date_pattern = r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})'
+                    parts = re.split(date_pattern, full_text)
 
-                    # Try alternative elements if no spans found
-                    if len(spans) == 0:
-                        # Try finding divs, paragraphs, or other elements
-                        divs = article.find_all("div")
-                        paragraphs = article.find_all("p")
-                        _LOGGER.debug("Found %d div elements and %d p elements", len(divs), len(paragraphs))
+                    # Process parts: parts[0] is before first date, then alternates between date and content
+                    for i in range(1, len(parts), 2):
+                        if i + 1 < len(parts):
+                            date = parts[i]
+                            content = parts[i + 1].strip()
 
-                        # Try parsing divs or paragraphs instead
-                        elements_to_parse = divs if divs else paragraphs
-                        for element in elements_to_parse:
-                            text = element.get_text(strip=True)
-                            if not text or len(text) < 10:
-                                continue
+                            if content:
+                                # Split content into lines to get title and description
+                                lines = [line.strip() for line in content.split("\n") if line.strip()]
+                                if lines:
+                                    title = lines[0]
+                                    description = " ".join(lines[1:]) if len(lines) > 1 else ""
 
-                            lines = [line.strip() for line in text.split("\n") if line.strip()]
-                            if len(lines) == 0:
-                                continue
-                            title = lines[0]
-                            description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
+                                    alert = {
+                                        "title": title,
+                                        "date": date,
+                                        "description": description if description else title,
+                                    }
+                                    alerts.append(alert)
 
-                            alert = {
-                                "title": title,
-                                "date": None,
-                                "description": description,
-                            }
-                            alerts.append(alert)
-                    else:
-                        for span in spans:
-                            # Get the text content
-                            text = span.get_text(strip=True)
-                            if not text or len(text) < 10:
-                                continue
-
-                            # Split text into lines
-                            lines = [line.strip() for line in text.split("\n") if line.strip()]
-                            if len(lines) == 0:
-                                continue
-                            title = lines[0]
-                            description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
-
-                            alert = {
-                                "title": title,
-                                "date": None,  # No explicit dates in the HTML structure
-                                "description": description,
-                            }
-
-                            alerts.append(alert)
                     _LOGGER.debug("Extracted %d alerts", len(alerts))
         except Exception as err:
             _LOGGER.warning("Error parsing alerts HTML: %s", err)
