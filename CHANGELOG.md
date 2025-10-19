@@ -1,21 +1,5 @@
 # Changelog
 
-## [1.7.3-beta.1](https://github.com/chilikla/yerushamayim/compare/v1.7.2-beta.1...v1.7.3-beta.1) (2025-10-15)
-
-
-### Bug Fixes
-
-* typo [#3](https://github.com/chilikla/yerushamayim/issues/3) ([de914f3](https://github.com/chilikla/yerushamayim/commit/de914f323f0f3975ecad9466d70aca007348fdfd))
-* typo [#4](https://github.com/chilikla/yerushamayim/issues/4) ([ddc9d99](https://github.com/chilikla/yerushamayim/commit/ddc9d99ef7de1650c6fd3dcd8c470c8adf7c6476))
-* typo [#5](https://github.com/chilikla/yerushamayim/issues/5) ([687fa9a](https://github.com/chilikla/yerushamayim/commit/687fa9af15bf8580867df089b81baf2359065d13))
-
-## [1.7.2](https://github.com/chilikla/yerushamayim/compare/v1.7.1...v1.7.2) (2025-10-14)
-
-
-### Bug Fixes
-
-* urls and status data ([c9105f5](https://github.com/chilikla/yerushamayim/commit/c9105f5b4b9210a81a2f52d5d2d4dccbe81f1bf9))
-
 ## [1.7.1](https://github.com/chilikla/yerushamayim/compare/v1.7.0...v1.7.1) (2025-10-02)
 
 
