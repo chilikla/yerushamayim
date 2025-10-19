@@ -32,7 +32,7 @@ class YerushamayimData:
     temperature: Dict[str, Any]
     humidity: Dict[str, Any]
     status: Dict[str, Any]
-    forecast: Dict[str, Any]
+    forecast: list[Dict[str, Any]]
     precipitation: Dict[str, Any]
     wind: Dict[str, Any]
     forecast_days: Dict[str, Any]
