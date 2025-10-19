@@ -213,8 +213,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                     else "לא זמין"
                 ),
                 "laundry": laundry_rec.get("value", "0"),
-                "day_icon": NEW_URL + today_forecast.get("icon", ""),
-                "cloth_icon": NEW_URL + today_forecast.get(cloth_icon_key, ""),
+                "day_icon": URL + today_forecast.get("icon", ""),
+                "cloth_icon": URL + today_forecast.get(cloth_icon_key, ""),
                 "cloth_info": today_forecast.get(cloth_key, "לא זמין"),
             }
         )
@@ -294,7 +294,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                     "temp_high": day.get("TempHigh", ""),
                     "temp_night": day.get("TempNight", ""),
                     "description": day.get("lang1", ""),  # Hebrew text
-                    "icon": NEW_URL + day.get("icon", ""),
+                    "icon": URL + day.get("icon", ""),
                     "cloth_day": day.get("TempHighClothTitle1", ""),
                 }
 
