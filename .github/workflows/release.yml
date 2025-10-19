@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-      - beta
 
 permissions:
   contents: write
@@ -14,24 +13,19 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - name: Create new release
+      - name: create new release
         uses: googleapis/release-please-action@v4
         id: release
         with:
-          target-branch: ${{ github.ref_name }}
-          config-file: ${{ github.ref_name == 'beta' && 'release-please-config-beta.json' || 'release-please-config.json' }}
-          manifest-file: ${{ github.ref_name == 'beta' && '.release-please-manifest-beta.json' || '.release-please-manifest.json' }}
-
+          release-type: simple
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
-
-      - name: Update README.md
+      - name: update README.md
         if: ${{ steps.release.outputs.release_created }}
         run: |
-          sed -i 's/Current version: .*/Current version: ${{ steps.release.outputs.tag_name }}/' README.md
-
-      - name: Commit updated README.md
+          sed -i 's/Current version: .*/Current version: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}/' README.md
+      - name: commit updated README.md
         if: ${{ steps.release.outputs.release_created }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update version in README to ${{ steps.release.outputs.tag_name }}"
+          commit_message: "chore: update version in README to ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
