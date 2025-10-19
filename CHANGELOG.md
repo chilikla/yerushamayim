@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4-beta.1](https://github.com/chilikla/yerushamayim/compare/v1.7.3-beta.1...v1.7.4-beta.1) (2025-10-19)
+
+
+### Bug Fixes
+
+* integrate forecast days and alerts ([391aff2](https://github.com/chilikla/yerushamayim/commit/391aff2ee4d60623f67b6e40a65e344a8ef227ea))
+
 ## [1.7.3-beta.1](https://github.com/chilikla/yerushamayim/compare/v1.7.2-beta.1...v1.7.3-beta.1) (2025-10-15)
 
 
