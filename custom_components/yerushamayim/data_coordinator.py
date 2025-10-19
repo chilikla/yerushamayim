@@ -207,7 +207,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             forecast_item = {
                 "date": day_forecast.get("date", ""),
                 "day_name_eng": day_forecast.get("day_name0", ""),
-                "day_name_heb": day_forecast.get("day_name1", ""),
+                "day_name_heb": day_forecast.get("day_name1", "").strip(),
                 "morning_temp": day_forecast.get("TempLow", ""),
                 "morning_cloth_icon": URL + day_forecast.get("TempLowCloth", ""),
                 "morning_cloth_info": day_forecast.get("TempLowClothTitle1", ""),
@@ -223,33 +223,42 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         alerts = []
         try:
-            alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
-            article = alerts_content.find("article")
-
-            if not article:
-                _LOGGER.warning("No article element found in alerts page")
+            if self.alerts.data is None:
+                _LOGGER.warning("Alerts data is None")
             else:
-                spans = article.find_all("span")
-                for span in spans:
-                    # Get the text content
-                    text = span.get_text(strip=True)
-                    if not text or len(text) < 10:
-                        continue
+                alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
+                _LOGGER.debug("Alerts HTML parsed successfully")
+                article = alerts_content.find("article")
 
-                    # Split text into lines
-                    lines = [line.strip() for line in text.split("\n") if line.strip()]
-                    if len(lines) == 0:
-                        continue
-                    title = lines[0]
-                    description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
+                if not article:
+                    _LOGGER.warning("No article element found in alerts page")
+                    # Try alternative parsing - look for divs with alert content
+                    all_text = alerts_content.get_text()
+                    _LOGGER.debug("Alerts page text preview: %s", all_text[:200] if all_text else "Empty")
+                else:
+                    spans = article.find_all("span")
+                    _LOGGER.debug("Found %d span elements in article", len(spans))
+                    for span in spans:
+                        # Get the text content
+                        text = span.get_text(strip=True)
+                        if not text or len(text) < 10:
+                            continue
 
-                    alert = {
-                        "title": title,
-                        "date": None,  # No explicit dates in the HTML structure
-                        "description": description,
-                    }
+                        # Split text into lines
+                        lines = [line.strip() for line in text.split("\n") if line.strip()]
+                        if len(lines) == 0:
+                            continue
+                        title = lines[0]
+                        description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
 
-                    alerts.append(alert)
+                        alert = {
+                            "title": title,
+                            "date": None,  # No explicit dates in the HTML structure
+                            "description": description,
+                        }
+
+                        alerts.append(alert)
+                    _LOGGER.debug("Extracted %d alerts", len(alerts))
         except Exception as err:
             _LOGGER.warning("Error parsing alerts HTML: %s", err)
 
