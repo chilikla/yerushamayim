@@ -226,7 +226,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             if self.alerts.data is None:
                 _LOGGER.warning("Alerts data is None")
             else:
-                import re
                 alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
                 _LOGGER.debug("Alerts HTML parsed successfully")
                 article = alerts_content.find("article")
@@ -234,32 +233,30 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 if not article:
                     _LOGGER.warning("No article element found in alerts page")
                 else:
-                    # Get all text from the article
-                    full_text = article.get_text(separator="\n", strip=True)
+                    # Find all alert divs
+                    alert_divs = article.find_all("div", class_="inv_plain_3")
+                    _LOGGER.debug("Found %d alert divs", len(alert_divs))
 
-                    # Split by date pattern (YYYY-MM-DD HH:MM:SS)
-                    date_pattern = r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})'
-                    parts = re.split(date_pattern, full_text)
+                    for alert_div in alert_divs:
+                        # Extract title from h1
+                        h1 = alert_div.find("h1")
+                        title = h1.get_text(strip=True) if h1 else ""
 
-                    # Process parts: parts[0] is before first date, then alternates between date and content
-                    for i in range(1, len(parts), 2):
-                        if i + 1 < len(parts):
-                            date = parts[i]
-                            content = parts[i + 1].strip()
+                        # Extract date from label
+                        label = alert_div.find("label")
+                        date = label.get_text(strip=True) if label else None
 
-                            if content:
-                                # Split content into lines to get title and description
-                                lines = [line.strip() for line in content.split("\n") if line.strip()]
-                                if lines:
-                                    title = lines[0]
-                                    description = " ".join(lines[1:]) if len(lines) > 1 else ""
+                        # Extract description from the inner div
+                        inner_div = alert_div.find("div", style=lambda value: value and "padding:0em" in value)
+                        description = inner_div.get_text(strip=True) if inner_div else ""
 
-                                    alert = {
-                                        "title": title,
-                                        "date": date,
-                                        "description": description if description else title,
-                                    }
-                                    alerts.append(alert)
+                        if title:  # Only add if we have at least a title
+                            alert = {
+                                "title": title,
+                                "date": date,
+                                "description": description if description else title,
+                            }
+                            alerts.append(alert)
 
                     _LOGGER.debug("Extracted %d alerts", len(alerts))
         except Exception as err:
