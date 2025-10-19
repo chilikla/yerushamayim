@@ -133,7 +133,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             jws = data.get("jws", {})
             current = jws.get("current", {})
             forecast_days = jws.get("forecastDays", [])
-            today_forecast = forecast_days[0] if forecast_days else {}
         except Exception as err:
             _LOGGER.error("Failed to parse JSON API data: %s", err)
             raise PlatformNotReady("Failed to parse JSON API data") from err
@@ -203,27 +202,25 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "wind_direction": current.get("winddir", ""),
         }
 
-        # Forecast data from today's forecast
-        forecast_data = {}
-        if today_forecast:
-            forecast_data.update(
-                {
-                    "morning_temp": today_forecast.get("TempLow", ""),
-                    "morning_cloth_icon": URL + today_forecast.get("TempLowCloth", ""),
-                    "morning_cloth_info": today_forecast.get("TempLowClothTitle1", ""),
-                    "noon_temp": today_forecast.get("TempHigh", ""),
-                    "noon_cloth_icon": URL + today_forecast.get("TempHighCloth", ""),
-                    "noon_cloth_info": today_forecast.get("TempHighClothTitle1", ""),
-                    "night_temp": today_forecast.get("TempNight", ""),
-                    "night_cloth_icon": URL + today_forecast.get("TempNightCloth", ""),
-                    "night_cloth_info": today_forecast.get("TempNightClothTitle1", ""),
-                }
-            )
-            status_data.update(
-                {
-                    "forecast": today_forecast.get("lang1", ""),
-                }
-            )
+        # Forecast data from all forecast days
+        forecast_data = []
+        for day_forecast in forecast_days:
+            forecast_item = {
+                "date": day.get("date", ""),
+                "day_name_eng": day.get("day_name0", ""),
+                "day_name_heb": day.get("day_name1", ""),
+                "morning_temp": day_forecast.get("TempLow", ""),
+                "morning_cloth_icon": URL + day_forecast.get("TempLowCloth", ""),
+                "morning_cloth_info": day_forecast.get("TempLowClothTitle1", ""),
+                "noon_temp": day_forecast.get("TempHigh", ""),
+                "noon_cloth_icon": URL + day_forecast.get("TempHighCloth", ""),
+                "noon_cloth_info": day_forecast.get("TempHighClothTitle1", ""),
+                "night_temp": day_forecast.get("TempNight", ""),
+                "night_cloth_icon": URL + day_forecast.get("TempNightCloth", ""),
+                "night_cloth_info": day_forecast.get("TempNightClothTitle1", ""),
+                "status": day_forecast.get("lang1", ""),
+            }
+            forecast_data.append(forecast_item)
 
         alerts = []
         try:
@@ -257,22 +254,6 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.warning("Error parsing alerts HTML: %s", err)
 
-        # Multi-day forecast data
-        forecast_days_data = {}
-        if forecast_days:
-            for i, day in enumerate(forecast_days):
-                day_key = f"day_{i+1}"
-                forecast_days_data[day_key] = {
-                    "date": day.get("date", ""),
-                    "day_name": day.get("day_name0", ""),
-                    "temp_low": day.get("TempLow", ""),
-                    "temp_high": day.get("TempHigh", ""),
-                    "temp_night": day.get("TempNight", ""),
-                    "description": day.get("lang1", ""),  # Hebrew text
-                    "icon": URL + day.get("icon", ""),
-                    "cloth_day": day.get("TempHighClothTitle1", ""),
-                }
-
         return YerushamayimData(
             temperature=temp_data,
             humidity=humidity_data,
@@ -280,6 +261,5 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             forecast=forecast_data,
             precipitation=precipitation_data,
             wind=wind_data,
-            forecast_days=forecast_days_data,
             alerts=alerts,
         )

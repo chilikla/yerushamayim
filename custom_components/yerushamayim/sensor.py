@@ -34,9 +34,13 @@ async def async_setup_entry(
         YerushamayimTemperatureSensor(coordinator),
         YerushamayimHumiditySensor(coordinator),
         YerushamayimStatusSensor(coordinator),
-        YerushamayimForecastSensor(coordinator),
-        YerushamayimPrecipitationSensor(coordinator)
+        YerushamayimPrecipitationSensor(coordinator),
+        YerushamayimAlertsSensor(coordinator),
     ]
+
+    # Add 7 forecast sensors (one for each day)
+    for day_num in range(1, 8):
+        sensors.append(YerushamayimForecastSensor(coordinator, day_num))
 
     async_add_entities(sensors, True)
 
@@ -163,42 +167,44 @@ class YerushamayimStatusSensor(YerushamayimBaseSensor):
         """Return the icon."""
         return "mdi:weather-sunny"
 
-class YerushamayimForecastSensor(YerushamayimBaseSensor):
+class YerushamayimForecastSensor(CoordinatorEntity, SensorEntity):
     """Forecast sensor for Yerushamayim."""
 
-    sensor_type = "forecast"
+    def __init__(self, coordinator: YerushamayimDataCoordinator, day_num: int):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._day_num = day_num
+        self._attr_unique_id = f"{DOMAIN}_forecast_day_{day_num}"
+        self._attr_name = f"Yerushamayim Forecast Day {day_num}"
 
     @property
     def native_value(self):
-        """Return the day of the week."""
-        days = {
-            0: "Monday",
-            1: "Tuesday",
-            2: "Wednesday",
-            3: "Thursday",
-            4: "Friday",
-            5: "Saturday",
-            6: "Sunday"
-        }
-        return days[datetime.now().weekday()]
+        """Return the forecast status."""
+        if self.coordinator.data and self.coordinator.data.forecast:
+            if len(self.coordinator.data.forecast) >= self._day_num:
+                return self.coordinator.data.forecast[self._day_num - 1].get("status", "")
+        return None
 
     @property
     def icon(self):
         """Return the icon."""
-        return "mdi:clock-outline"
+        return "mdi:calendar-today"
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes with numeric conversions for temperatures."""
-        attrs = super().extra_state_attributes
-        # Convert temperature values to float where possible
-        for key in attrs:
-            if key.endswith('_temp') and attrs[key] is not None:
-                try:
-                    attrs[key] = float(attrs[key])
-                except (ValueError, TypeError):
-                    pass
-        return attrs
+        if self.coordinator.data and self.coordinator.data.forecast:
+            if len(self.coordinator.data.forecast) >= self._day_num:
+                attrs = self.coordinator.data.forecast[self._day_num - 1].copy()
+                # Convert temperature values to float where possible
+                for key in attrs:
+                    if key.endswith('_temp') and attrs[key] is not None:
+                        try:
+                            attrs[key] = float(attrs[key])
+                        except (ValueError, TypeError):
+                            pass
+                return attrs
+        return {}
 
 class YerushamayimPrecipitationSensor(YerushamayimBaseSensor):
     """Precipitation sensor for Yerushamayim."""
@@ -236,3 +242,37 @@ class YerushamayimPrecipitationSensor(YerushamayimBaseSensor):
         attrs = super().extra_state_attributes
         attrs["precipitation_probability_unit"] = PERCENTAGE
         return attrs
+
+class YerushamayimAlertsSensor(CoordinatorEntity, SensorEntity):
+    """Alerts sensor for Yerushamayim."""
+
+    def __init__(self, coordinator: YerushamayimDataCoordinator):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{DOMAIN}_alerts"
+        self._attr_name = "Yerushamayim Alerts"
+
+    @property
+    def native_value(self):
+        """Return the number of alerts."""
+        if self.coordinator.data and self.coordinator.data.alerts:
+            return len(self.coordinator.data.alerts[:5])
+        return 0
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return "mdi:alert"
+
+    @property
+    def extra_state_attributes(self):
+        """Return the latest 5 alerts as attributes."""
+        if self.coordinator.data and self.coordinator.data.alerts:
+            alerts = self.coordinator.data.alerts[:5]
+            attrs = {}
+            for i, alert in enumerate(alerts, 1):
+                attrs[f"alert_{i}_title"] = alert.get("title", "")
+                attrs[f"alert_{i}_description"] = alert.get("description", "")
+                attrs[f"alert_{i}_date"] = alert.get("date", "")
+            return attrs
+        return {}
