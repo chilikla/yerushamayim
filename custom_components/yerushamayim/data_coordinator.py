@@ -35,7 +35,6 @@ class YerushamayimData:
     forecast: list[Dict[str, Any]]
     precipitation: Dict[str, Any]
     wind: Dict[str, Any]
-    forecast_days: Dict[str, Any]
     alerts: list[dict]
 
 
