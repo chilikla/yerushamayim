@@ -1,10 +1,13 @@
 """Data coordinator for Yerushamayim integration."""
+
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict
 import json
+from datetime import datetime as dt
+from bs4 import BeautifulSoup
 
 from homeassistant.components.rest.data import RestData
 from homeassistant.core import HomeAssistant
@@ -21,15 +24,20 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+
 @dataclass
 class YerushamayimData:
     """Class to hold Yerushamayim data."""
+
     temperature: Dict[str, Any]
     humidity: Dict[str, Any]
     status: Dict[str, Any]
     forecast: Dict[str, Any]
     precipitation: Dict[str, Any]
     wind: Dict[str, Any]
+    forecast_days: Dict[str, Any]
+    alerts: list[dict]
+
 
 class YerushamayimDataCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Yerushamayim data."""
@@ -42,8 +50,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             name="Yerushamayim Weather",
             update_interval=SCAN_INTERVAL,
         )
-        
-        # Initialize REST clients
+
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
@@ -59,7 +66,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             data=None,
             verify_ssl=False,
             ssl_cipher_list="python_default",
-            timeout=30
+            timeout=30,
         )
 
         self.coldmeter_api = RestData(
@@ -73,9 +80,9 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             data=None,
             verify_ssl=False,
             ssl_cipher_list="python_default",
-            timeout=30
+            timeout=30,
         )
-        
+
         self.alerts = RestData(
             hass=hass,
             method="GET",
@@ -87,7 +94,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             data=None,
             verify_ssl=False,
             ssl_cipher_list="python_default",
-            timeout=30
+            timeout=30,
         )
 
     async def _async_update_data(self) -> YerushamayimData:
@@ -106,7 +113,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.warning("Error updating from coldmeter API: %s", err)
             # Don't raise here as we can continue with partial data
-            
+
         try:
             await self.alerts.async_update(False)
         except Exception as err:
@@ -149,7 +156,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             "humidity": current.get("hum", ""),
         }
 
-        # Status data
+        # Status data with enhanced recommendations parsing
         status_data = {
             "condition": "unknown",
         }
@@ -158,14 +165,59 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         if self.coldmeter_api is not None and self.coldmeter_api.data:
             try:
                 coldmeter = json.loads(self.coldmeter_api.data)
-                status_data.update({
-                    "status": coldmeter["coldmeter"]["current_feeling"],
-                    "cloth_icon": URL + "images/clothes/" + coldmeter["coldmeter"]["cloth_name"],
-                    "cloth_info": coldmeter["coldmeter"]["clothtitle"],
-                    "laundry": coldmeter.get("laundryidx", {}).get("laundry_con_title", None)
-                })
+                status_data.update(
+                    {
+                        "status": coldmeter["coldmeter"]["current_feeling"],
+                        "cloth_icon": URL
+                        + "images/clothes/"
+                        + coldmeter["coldmeter"]["cloth_name"],
+                        "cloth_info": coldmeter["coldmeter"]["clothtitle"],
+                        "laundry": coldmeter.get("laundryidx", {}).get(
+                            "laundry_con_title", None
+                        ),
+                    }
+                )
             except Exception as err:
                 _LOGGER.debug("Could not parse coldmeter data: %s", err)
+
+        # Parse recommendations from API
+        recommendations = current.get("recommendations", [])
+        event_outside = next(
+            (r for r in recommendations if r.get("activity") == "EVENTOUTSIDE"), {}
+        )
+        laundry_rec = next(
+            (r for r in recommendations if r.get("activity") == "Laundry"), {}
+        )
+
+        # Time-based clothing recommendation logic
+        current_hour = dt.now().hour
+        use_low_cloth = current_hour < 12 or current_hour > 18
+        cloth_key = "TempLowClothTitle1" if use_low_cloth else "TempHighClothTitle1"
+        cloth_icon_key = "TempLowCloth" if use_low_cloth else "TempHighCloth"
+
+        status_data.update(
+            {
+                "forecast_short": (
+                    event_outside.get("sig1", "").split("\n")[0].strip()
+                    if event_outside.get("sig1")
+                    else "לא זמין"
+                ),
+                "forecast": (
+                    event_outside.get("sig1", "").strip()
+                    if event_outside.get("sig1")
+                    else "לא זמין"
+                ),
+                "forecast_full": (
+                    event_outside.get("sig1", "").strip()
+                    if event_outside.get("sig1")
+                    else "לא זמין"
+                ),
+                "laundry": laundry_rec.get("value", "0"),
+                "day_icon": NEW_URL + today_forecast.get("icon", ""),
+                "cloth_icon": NEW_URL + today_forecast.get(cloth_icon_key, ""),
+                "cloth_info": today_forecast.get(cloth_key, "לא זמין"),
+            }
+        )
 
         # Precipitation data
         precipitation_data = {
@@ -182,20 +234,69 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         # Forecast data from today's forecast
         forecast_data = {}
         if today_forecast:
-            forecast_data.update({
-                "morning_temp": today_forecast.get("TempLow", ""),
-                "morning_cloth_icon": URL + today_forecast.get("TempLowCloth", ""),
-                "morning_cloth_info": today_forecast.get("TempLowClothTitle1", ""),
-                "noon_temp": today_forecast.get("TempHigh", ""),
-                "noon_cloth_icon": URL + today_forecast.get("TempHighCloth", ""),
-                "noon_cloth_info": today_forecast.get("TempHighClothTitle1", ""),
-                "night_temp": today_forecast.get("TempNight", ""),
-                "night_cloth_icon": URL + today_forecast.get("TempNightCloth", ""),
-                "night_cloth_info": today_forecast.get("TempNightClothTitle1", ""),
-            })
-            status_data.update({
-                "forecast": today_forecast.get("lang1", ""),
-            })
+            forecast_data.update(
+                {
+                    "morning_temp": today_forecast.get("TempLow", ""),
+                    "morning_cloth_icon": URL + today_forecast.get("TempLowCloth", ""),
+                    "morning_cloth_info": today_forecast.get("TempLowClothTitle1", ""),
+                    "noon_temp": today_forecast.get("TempHigh", ""),
+                    "noon_cloth_icon": URL + today_forecast.get("TempHighCloth", ""),
+                    "noon_cloth_info": today_forecast.get("TempHighClothTitle1", ""),
+                    "night_temp": today_forecast.get("TempNight", ""),
+                    "night_cloth_icon": URL + today_forecast.get("TempNightCloth", ""),
+                    "night_cloth_info": today_forecast.get("TempNightClothTitle1", ""),
+                }
+            )
+            status_data.update(
+                {
+                    "forecast": today_forecast.get("lang1", ""),
+                }
+            )
+
+        alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
+        article = alerts_content.find("article")
+
+        alerts = []
+        if not article:
+            print("No article element found")
+        else:
+            spans = article.find_all("span")
+            for span in spans:
+                # Get the text content
+                text = span.get_text(strip=True)
+                if not text or len(text) < 10:
+                    continue
+
+                # Split text into lines
+                lines = [line.strip() for line in text.split("\n") if line.strip()]
+                if len(lines) == 0:
+                    continue
+                title = lines[0]
+                description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
+
+                alert = {
+                    "title": title,
+                    "date": None,  # No explicit dates in the HTML structure
+                    "description": description,
+                }
+
+                alerts.append(alert)
+
+        # Multi-day forecast data
+        forecast_days_data = {}
+        if forecast_days:
+            for i, day in enumerate(forecast_days):
+                day_key = f"day_{i+1}"
+                forecast_days_data[day_key] = {
+                    "date": day.get("date", ""),
+                    "day_name": day.get("day_name0", ""),
+                    "temp_low": day.get("TempLow", ""),
+                    "temp_high": day.get("TempHigh", ""),
+                    "temp_night": day.get("TempNight", ""),
+                    "description": day.get("lang1", ""),  # Hebrew text
+                    "icon": NEW_URL + day.get("icon", ""),
+                    "cloth_day": day.get("TempHighClothTitle1", ""),
+                }
 
         return YerushamayimData(
             temperature=temp_data,
@@ -203,5 +304,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             status=status_data,
             forecast=forecast_data,
             precipitation=precipitation_data,
-            wind=wind_data
+            wind=wind_data,
+            forecast_days=forecast_days_data,
+            alerts=alerts,
         )
