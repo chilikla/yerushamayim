@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.2](https://github.com/chilikla/yerushamayim/compare/v1.7.1...v1.7.2) (2025-10-19)
+
+
+### Bug Fixes
+
+* new sensors ([#87](https://github.com/chilikla/yerushamayim/issues/87)) ([6a49a78](https://github.com/chilikla/yerushamayim/commit/6a49a783c87dd6b57ddba8869966ac9560bd95b3))
+* new sensors and fixed status sensor ([#89](https://github.com/chilikla/yerushamayim/issues/89)) ([f786dbb](https://github.com/chilikla/yerushamayim/commit/f786dbbf596a138b5e270a72210636c5498b95ff))
+
 ## [1.7.2](https://github.com/chilikla/yerushamayim/compare/v1.7.1...v1.7.2) (2025-10-14)
 
 
