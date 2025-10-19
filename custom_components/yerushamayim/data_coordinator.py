@@ -157,9 +157,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         }
 
         # Status data with enhanced recommendations parsing
-        status_data = {
-            "condition": "unknown",
-        }
+        status_data = {}
 
         # Add coldmeter data if available
         if self.coldmeter_api is not None and self.coldmeter_api.data:
@@ -172,50 +170,24 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                         + "images/clothes/"
                         + coldmeter["coldmeter"]["cloth_name"],
                         "cloth_info": coldmeter["coldmeter"]["clothtitle"],
-                        "laundry": coldmeter.get("laundryidx", {}).get(
-                            "laundry_con_title", None
-                        ),
+                        "laundry": coldmeter["laundryidx"]["laundry_con_title"]
                     }
                 )
             except Exception as err:
                 _LOGGER.debug("Could not parse coldmeter data: %s", err)
 
-        # Parse recommendations from API
+        # Parse recommendations
         recommendations = current.get("recommendations", [])
         event_outside = next(
             (r for r in recommendations if r.get("activity") == "EVENTOUTSIDE"), {}
         )
-        laundry_rec = next(
-            (r for r in recommendations if r.get("activity") == "Laundry"), {}
-        )
-
-        # Time-based clothing recommendation logic
-        current_hour = dt.now().hour
-        use_low_cloth = current_hour < 12 or current_hour > 18
-        cloth_key = "TempLowClothTitle1" if use_low_cloth else "TempHighClothTitle1"
-        cloth_icon_key = "TempLowCloth" if use_low_cloth else "TempHighCloth"
-
         status_data.update(
             {
-                "forecast_short": (
-                    event_outside.get("sig1", "").split("\n")[0].strip()
-                    if event_outside.get("sig1")
-                    else "לא זמין"
-                ),
-                "forecast": (
+                "recommendation": (
                     event_outside.get("sig1", "").strip()
                     if event_outside.get("sig1")
-                    else "לא זמין"
+                    else "Unavailable"
                 ),
-                "forecast_full": (
-                    event_outside.get("sig1", "").strip()
-                    if event_outside.get("sig1")
-                    else "לא זמין"
-                ),
-                "laundry": laundry_rec.get("value", "0"),
-                "day_icon": URL + today_forecast.get("icon", ""),
-                "cloth_icon": URL + today_forecast.get(cloth_icon_key, ""),
-                "cloth_info": today_forecast.get(cloth_key, "לא זמין"),
             }
         )
 
@@ -253,34 +225,37 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 }
             )
 
-        alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
-        article = alerts_content.find("article")
-
         alerts = []
-        if not article:
-            print("No article element found")
-        else:
-            spans = article.find_all("span")
-            for span in spans:
-                # Get the text content
-                text = span.get_text(strip=True)
-                if not text or len(text) < 10:
-                    continue
+        try:
+            alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
+            article = alerts_content.find("article")
 
-                # Split text into lines
-                lines = [line.strip() for line in text.split("\n") if line.strip()]
-                if len(lines) == 0:
-                    continue
-                title = lines[0]
-                description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
+            if not article:
+                _LOGGER.warning("No article element found in alerts page")
+            else:
+                spans = article.find_all("span")
+                for span in spans:
+                    # Get the text content
+                    text = span.get_text(strip=True)
+                    if not text or len(text) < 10:
+                        continue
 
-                alert = {
-                    "title": title,
-                    "date": None,  # No explicit dates in the HTML structure
-                    "description": description,
-                }
+                    # Split text into lines
+                    lines = [line.strip() for line in text.split("\n") if line.strip()]
+                    if len(lines) == 0:
+                        continue
+                    title = lines[0]
+                    description = " ".join(lines[1:]) if len(lines) > 1 else lines[0]
 
-                alerts.append(alert)
+                    alert = {
+                        "title": title,
+                        "date": None,  # No explicit dates in the HTML structure
+                        "description": description,
+                    }
+
+                    alerts.append(alert)
+        except Exception as err:
+            _LOGGER.warning("Error parsing alerts HTML: %s", err)
 
         # Multi-day forecast data
         forecast_days_data = {}
