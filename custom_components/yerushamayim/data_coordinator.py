@@ -8,6 +8,7 @@ from typing import Any, Dict
 import json
 from datetime import datetime as dt
 from bs4 import BeautifulSoup
+import re
 
 from homeassistant.components.rest.data import RestData
 from homeassistant.core import HomeAssistant
@@ -204,6 +205,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         # Forecast data from all forecast days
         forecast_data = []
         for day_forecast in forecast_days:
+            status = re.sub(r'<[^>]+>', '', day_forecast.get("lang1", ""))
+            status = ' '.join(status.split())
             forecast_item = {
                 "date": day_forecast.get("date", ""),
                 "day_name_eng": day_forecast.get("day_name0", ""),
@@ -217,7 +220,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 "night_temp": day_forecast.get("TempNight", ""),
                 "night_cloth_icon": URL + day_forecast.get("TempNightCloth", ""),
                 "night_cloth_info": day_forecast.get("TempNightClothTitle1", ""),
-                "status": day_forecast.get("lang1", ""),
+                "status": status,
             }
             forecast_data.append(forecast_item)
 
