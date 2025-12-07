@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.5](https://github.com/chilikla/yerushamayim/compare/v1.7.4...v1.7.5) (2025-12-07)
+
+
+### Bug Fixes
+
+* add day icon to days forecast ([#91](https://github.com/chilikla/yerushamayim/issues/91)) ([470f0f9](https://github.com/chilikla/yerushamayim/commit/470f0f9b2c09932ac9830380c1f6f29e3cf8d1d4))
+
 ## [1.7.2](https://github.com/chilikla/yerushamayim/compare/v1.7.1...v1.7.2) (2025-10-19)
 
 
