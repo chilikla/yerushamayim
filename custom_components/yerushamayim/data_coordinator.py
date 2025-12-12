@@ -59,8 +59,35 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         }
 
         self.json_api_data = None
-        self.coldmeter_api_data = None
-        self.alerts_data = None
+
+        # Use RestData for coldmeter and alerts (no encoding issues)
+        self.coldmeter_api = RestData(
+            hass=hass,
+            method="GET",
+            resource=COLDMETER_API,
+            encoding="UTF-8",
+            auth=None,
+            headers=self.headers,
+            params=None,
+            data=None,
+            verify_ssl=False,
+            ssl_cipher_list="python_default",
+            timeout=30,
+        )
+
+        self.alerts = RestData(
+            hass=hass,
+            method="GET",
+            resource=ALERTS_PAGE,
+            encoding="UTF-8",
+            auth=None,
+            headers=self.headers,
+            params=None,
+            data=None,
+            verify_ssl=False,
+            ssl_cipher_list="python_default",
+            timeout=30,
+        )
 
     async def _fetch_url(self, url: str) -> str:
         """Fetch URL content with proper UTF-8 error handling."""
@@ -84,19 +111,16 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             raise PlatformNotReady("JSON API data is None")
 
         try:
-            self.coldmeter_api_data = await self._fetch_url(COLDMETER_API)
-            _LOGGER.debug("Coldmeter API data fetched successfully, length: %d", len(self.coldmeter_api_data) if self.coldmeter_api_data else 0)
+            await self.coldmeter_api.async_update(False)
         except Exception as err:
-            _LOGGER.warning("Error updating from coldmeter API: %s", err, exc_info=True)
+            _LOGGER.warning("Error updating from coldmeter API: %s", err)
             # Don't raise here as we can continue with partial data
-            self.coldmeter_api_data = None
 
         try:
-            self.alerts_data = await self._fetch_url(ALERTS_PAGE)
+            await self.alerts.async_update(False)
         except Exception as err:
             _LOGGER.warning("Error updating from alerts page: %s", err)
             # Don't raise here as we can continue with partial data
-            self.alerts_data = None
 
         try:
             return await self.hass.async_add_executor_job(self._extract_data)
@@ -137,9 +161,9 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         status_data = {}
 
         # Add coldmeter data if available
-        if self.coldmeter_api_data is not None:
+        if self.coldmeter_api.data is not None:
             try:
-                coldmeter = json.loads(self.coldmeter_api_data)
+                coldmeter = json.loads(self.coldmeter_api.data)
                 _LOGGER.debug("Coldmeter JSON parsed successfully: %s", coldmeter.keys() if isinstance(coldmeter, dict) else type(coldmeter))
                 status_data.update(
                     {
@@ -209,10 +233,10 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         alerts = []
         try:
-            if self.alerts_data is None:
+            if self.alerts.data is None:
                 _LOGGER.warning("Alerts data is None")
             else:
-                alerts_content = BeautifulSoup(self.alerts_data, "html.parser")
+                alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
                 _LOGGER.debug("Alerts HTML parsed successfully")
                 article = alerts_content.find("article")
 
