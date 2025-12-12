@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.6](https://github.com/chilikla/yerushamayim/compare/v1.7.5...v1.7.6) (2025-12-12)
+
+
+### Bug Fixes
+
+* API calls encoding issues ([#93](https://github.com/chilikla/yerushamayim/issues/93)) ([cb88183](https://github.com/chilikla/yerushamayim/commit/cb8818304fee3b6e6099be5109aba550fd10f7c1))
+
 ## [1.7.5](https://github.com/chilikla/yerushamayim/compare/v1.7.4...v1.7.5) (2025-12-07)
 
 
