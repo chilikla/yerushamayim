@@ -9,11 +9,13 @@ import json
 from datetime import datetime as dt
 from bs4 import BeautifulSoup
 import re
+import aiohttp
 
 from homeassistant.components.rest.data import RestData
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     URL,
@@ -51,74 +53,49 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             update_interval=SCAN_INTERVAL,
         )
 
-        headers = {
+        self.hass = hass
+        self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
 
-        self.json_api = RestData(
-            hass=hass,
-            method="GET",
-            resource=JSON_API,
-            encoding="latin-1",
-            auth=None,
-            headers=headers,
-            params=None,
-            data=None,
-            verify_ssl=False,
-            ssl_cipher_list="python_default",
-            timeout=30,
-        )
+        self.json_api_data = None
+        self.coldmeter_api_data = None
+        self.alerts_data = None
 
-        self.coldmeter_api = RestData(
-            hass=hass,
-            method="GET",
-            resource=COLDMETER_API,
-            encoding="latin-1",
-            auth=None,
-            headers=headers,
-            params=None,
-            data=None,
-            verify_ssl=False,
-            ssl_cipher_list="python_default",
-            timeout=30,
-        )
-
-        self.alerts = RestData(
-            hass=hass,
-            method="GET",
-            resource=ALERTS_PAGE,
-            encoding="latin-1",
-            auth=None,
-            headers=headers,
-            params=None,
-            data=None,
-            verify_ssl=False,
-            ssl_cipher_list="python_default",
-            timeout=30,
-        )
+    async def _fetch_url(self, url: str) -> str:
+        """Fetch URL content with proper UTF-8 error handling."""
+        session = async_get_clientsession(self.hass, verify_ssl=False)
+        async with session.get(url, headers=self.headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            response.raise_for_status()
+            # Read as bytes first, then decode with error handling
+            content = await response.read()
+            # Try UTF-8 with replace errors - this will replace bad bytes with �
+            return content.decode('utf-8', errors='replace')
 
     async def _async_update_data(self) -> YerushamayimData:
         """Fetch data from Yerushamayim."""
         try:
-            await self.json_api.async_update(False)
+            self.json_api_data = await self._fetch_url(JSON_API)
         except Exception as err:
             _LOGGER.error("Error updating from JSON API: %s", err)
             raise PlatformNotReady("Failed to fetch JSON API data") from err
 
-        if self.json_api.data is None:
+        if self.json_api_data is None:
             raise PlatformNotReady("JSON API data is None")
 
         try:
-            await self.coldmeter_api.async_update(False)
+            self.coldmeter_api_data = await self._fetch_url(COLDMETER_API)
         except Exception as err:
             _LOGGER.warning("Error updating from coldmeter API: %s", err)
             # Don't raise here as we can continue with partial data
+            self.coldmeter_api_data = None
 
         try:
-            await self.alerts.async_update(False)
+            self.alerts_data = await self._fetch_url(ALERTS_PAGE)
         except Exception as err:
             _LOGGER.warning("Error updating from alerts page: %s", err)
             # Don't raise here as we can continue with partial data
+            self.alerts_data = None
 
         try:
             return await self.hass.async_add_executor_job(self._extract_data)
@@ -129,7 +106,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
     def _extract_data(self) -> YerushamayimData:
         """Extract data from API responses."""
         try:
-            data = json.loads(self.json_api.data)
+            data = json.loads(self.json_api_data)
             jws = data.get("jws", {})
             current = jws.get("current", {})
             forecast_days = jws.get("forecastDays", [])
@@ -159,9 +136,9 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         status_data = {}
 
         # Add coldmeter data if available
-        if self.coldmeter_api is not None and self.coldmeter_api.data:
+        if self.coldmeter_api_data is not None:
             try:
-                coldmeter = json.loads(self.coldmeter_api.data)
+                coldmeter = json.loads(self.coldmeter_api_data)
                 status_data.update(
                     {
                         "status": coldmeter["coldmeter"]["current_feeling"],
@@ -226,10 +203,10 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         alerts = []
         try:
-            if self.alerts.data is None:
+            if self.alerts_data is None:
                 _LOGGER.warning("Alerts data is None")
             else:
-                alerts_content = BeautifulSoup(self.alerts.data, "html.parser")
+                alerts_content = BeautifulSoup(self.alerts_data, "html.parser")
                 _LOGGER.debug("Alerts HTML parsed successfully")
                 article = alerts_content.find("article")
 
