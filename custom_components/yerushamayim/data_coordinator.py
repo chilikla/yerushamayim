@@ -171,8 +171,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                         "cloth_icon": URL
                         + "images/clothes/"
                         + coldmeter["coldmeter"]["cloth_name"],
-                        "cloth_info": coldmeter["coldmeter"]["clothtitle"],
-                        "laundry": coldmeter["laundryidx"]["laundry_con_title"]
+                        "cloth_info": coldmeter["coldmeter"]["clothtitle"]
+                        # "laundry": coldmeter["laundryidx"]["laundry_con_title"]
                     }
                 )
                 _LOGGER.debug("Coldmeter data added to status_data successfully")
