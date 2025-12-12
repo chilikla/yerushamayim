@@ -85,8 +85,9 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
 
         try:
             self.coldmeter_api_data = await self._fetch_url(COLDMETER_API)
+            _LOGGER.debug("Coldmeter API data fetched successfully, length: %d", len(self.coldmeter_api_data) if self.coldmeter_api_data else 0)
         except Exception as err:
-            _LOGGER.warning("Error updating from coldmeter API: %s", err)
+            _LOGGER.warning("Error updating from coldmeter API: %s", err, exc_info=True)
             # Don't raise here as we can continue with partial data
             self.coldmeter_api_data = None
 
@@ -139,6 +140,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         if self.coldmeter_api_data is not None:
             try:
                 coldmeter = json.loads(self.coldmeter_api_data)
+                _LOGGER.debug("Coldmeter JSON parsed successfully: %s", coldmeter.keys() if isinstance(coldmeter, dict) else type(coldmeter))
                 status_data.update(
                     {
                         "status": coldmeter["coldmeter"]["current_feeling"],
@@ -149,8 +151,9 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                         "laundry": coldmeter["laundryidx"]["laundry_con_title"]
                     }
                 )
+                _LOGGER.debug("Coldmeter data added to status_data successfully")
             except Exception as err:
-                _LOGGER.debug("Could not parse coldmeter data: %s", err)
+                _LOGGER.warning("Could not parse coldmeter data: %s", err, exc_info=True)
 
         # Parse recommendations
         recommendations = current.get("recommendations", [])
@@ -166,6 +169,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 ),
             }
         )
+
+        _LOGGER.debug("Final status_data keys: %s", list(status_data.keys()))
 
         # Precipitation data
         precipitation_data = {
