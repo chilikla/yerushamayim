@@ -9,11 +9,13 @@ import json
 from datetime import datetime as dt
 from bs4 import BeautifulSoup
 import re
+import aiohttp
 
 from homeassistant.components.rest.data import RestData
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     URL,
@@ -51,31 +53,21 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             update_interval=SCAN_INTERVAL,
         )
 
-        headers = {
+        self.hass = hass
+        self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
 
-        self.json_api = RestData(
-            hass=hass,
-            method="GET",
-            resource=JSON_API,
-            encoding="UTF-8",
-            auth=None,
-            headers=headers,
-            params=None,
-            data=None,
-            verify_ssl=False,
-            ssl_cipher_list="python_default",
-            timeout=30,
-        )
+        self.json_api_data = None
 
+        # Use RestData for coldmeter and alerts (no encoding issues)
         self.coldmeter_api = RestData(
             hass=hass,
             method="GET",
             resource=COLDMETER_API,
             encoding="UTF-8",
             auth=None,
-            headers=headers,
+            headers=self.headers,
             params=None,
             data=None,
             verify_ssl=False,
@@ -89,7 +81,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             resource=ALERTS_PAGE,
             encoding="UTF-8",
             auth=None,
-            headers=headers,
+            headers=self.headers,
             params=None,
             data=None,
             verify_ssl=False,
@@ -97,15 +89,25 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
             timeout=30,
         )
 
+    async def _fetch_url(self, url: str) -> str:
+        """Fetch URL content with proper UTF-8 error handling."""
+        session = async_get_clientsession(self.hass, verify_ssl=False)
+        async with session.get(url, headers=self.headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            response.raise_for_status()
+            # Read as bytes first, then decode with error handling
+            content = await response.read()
+            # Try UTF-8 with replace errors - this will replace bad bytes with �
+            return content.decode('utf-8', errors='replace')
+
     async def _async_update_data(self) -> YerushamayimData:
         """Fetch data from Yerushamayim."""
         try:
-            await self.json_api.async_update(False)
+            self.json_api_data = await self._fetch_url(JSON_API)
         except Exception as err:
             _LOGGER.error("Error updating from JSON API: %s", err)
             raise PlatformNotReady("Failed to fetch JSON API data") from err
 
-        if self.json_api.data is None:
+        if self.json_api_data is None:
             raise PlatformNotReady("JSON API data is None")
 
         try:
@@ -129,7 +131,7 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
     def _extract_data(self) -> YerushamayimData:
         """Extract data from API responses."""
         try:
-            data = json.loads(self.json_api.data)
+            data = json.loads(self.json_api_data)
             jws = data.get("jws", {})
             current = jws.get("current", {})
             forecast_days = jws.get("forecastDays", [])
@@ -159,21 +161,23 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
         status_data = {}
 
         # Add coldmeter data if available
-        if self.coldmeter_api is not None and self.coldmeter_api.data:
+        if self.coldmeter_api.data is not None:
             try:
                 coldmeter = json.loads(self.coldmeter_api.data)
+                _LOGGER.debug("Coldmeter JSON parsed successfully: %s", coldmeter.keys() if isinstance(coldmeter, dict) else type(coldmeter))
                 status_data.update(
                     {
                         "status": coldmeter["coldmeter"]["current_feeling"],
                         "cloth_icon": URL
                         + "images/clothes/"
                         + coldmeter["coldmeter"]["cloth_name"],
-                        "cloth_info": coldmeter["coldmeter"]["clothtitle"],
-                        "laundry": coldmeter["laundryidx"]["laundry_con_title"]
+                        "cloth_info": coldmeter["coldmeter"]["clothtitle"]
+                        # "laundry": coldmeter["laundryidx"]["laundry_con_title"]
                     }
                 )
+                _LOGGER.debug("Coldmeter data added to status_data successfully")
             except Exception as err:
-                _LOGGER.debug("Could not parse coldmeter data: %s", err)
+                _LOGGER.warning("Could not parse coldmeter data: %s", err, exc_info=True)
 
         # Parse recommendations
         recommendations = current.get("recommendations", [])
@@ -189,6 +193,8 @@ class YerushamayimDataCoordinator(DataUpdateCoordinator):
                 ),
             }
         )
+
+        _LOGGER.debug("Final status_data keys: %s", list(status_data.keys()))
 
         # Precipitation data
         precipitation_data = {
